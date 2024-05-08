@@ -5,6 +5,8 @@ import { TamaguiProvider } from 'tamagui';
 
 import config from '../tamagui.config';
 
+import { AuthProvider } from '~/context/auth-context';
+
 export default function Layout() {
   const [loaded] = useFonts({
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
@@ -20,8 +22,14 @@ export default function Layout() {
   if (!loaded) return null;
 
   return (
-    <TamaguiProvider config={config}>
-      <Stack />
-    </TamaguiProvider>
+    <AuthProvider>
+      <TamaguiProvider config={config}>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="prestador" options={{ headerShown: false }} />
+          <Stack.Screen name="cliente" options={{ headerShown: false }} />
+        </Stack>
+      </TamaguiProvider>
+    </AuthProvider>
   );
 }

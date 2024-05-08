@@ -83,6 +83,12 @@ const config = createTamagui({
       text: 'black',
     },
   },
+  light_button: {
+    color: {
+      background: 'gray',
+      text: 'black',
+    },
+  },
   defaultFont: 'body',
   animations,
   shouldAddPrefersColorThemes: true,
