@@ -1,11 +1,14 @@
-import { Link } from 'expo-router';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Link, router } from 'expo-router';
 import React from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, ScrollView, Text, YStack } from 'tamagui';
+import * as yup from 'yup';
 
 import ResolvePelLogo from '~/components/resolvePelLogo/resolvePel-logo';
+import { useAuth } from '~/context/auth-context';
 
 interface IFormInputs {
   name: string;
@@ -16,15 +19,46 @@ interface IFormInputs {
   repeatPassword: string;
 }
 
+const formSchema = yup.object().shape({
+  name: yup.string().required('Nome é obrigatório'),
+  cpf: yup.string().min(11, 'CPF Inválido').max(11, 'CPF Inválido').required('CPF é obrigatório'),
+  email: yup.string().email().required('Email é obrigatório'),
+  telefone: yup.string().min(11, 'Telefone inválido').required('Telefone é obrigatório'),
+  password: yup
+    .string()
+    .min(8, 'Sua senha deve ter no mínimo 8 caracteres')
+    .required('Senha é obrigatório'),
+  repeatPassword: yup
+    .string()
+    .required('Campo obrigatório')
+    .oneOf([yup.ref('password', undefined)], 'Senhas não conferem'),
+});
+
 const Cadastro = () => {
   const {
     control,
     handleSubmit,
+    setError,
     formState: { errors },
-  } = useForm<IFormInputs>();
+  } = useForm<IFormInputs>({ mode: 'all', resolver: yupResolver(formSchema) });
+  const { onRegister } = useAuth();
 
-  const onSubmit: SubmitHandler<IFormInputs> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
+    try {
+      console.log(data);
+      await onRegister!(data.name, data.email, data.password, data.cpf, data.telefone);
+      router.push('./login');
+    } catch (error: any) {
+      if (error.response.status === 400) {
+        const { texto } = error.response.data.mensagem;
+        console.log(texto);
+        const errorField = error.texto?.includes('Email') ? 'email' : 'cpf';
+        console.log(errorField);
+        setError(errorField, texto);
+        return;
+      }
+      throw new Error(error);
+    }
   };
 
   return (
@@ -164,7 +198,7 @@ const Cadastro = () => {
                     rules={{ required: 'Campo obrigatório' }}
                     render={({ field: { onChange, value, onBlur } }) => (
                       <TextInput
-                        placeholder="CPF"
+                        placeholder="Informe sua senha"
                         onChangeText={onChange}
                         value={value}
                         onBlur={onBlur}
@@ -216,17 +250,6 @@ const Cadastro = () => {
                   onPress={handleSubmit(onSubmit)}>
                   Finalizar cadastro
                 </Button>
-                {/* <TextField label="CPF" placeholder="Ex: 000.000.000-00" /> */}
-                {/* <TextField label="E-mail" placeholder="Ex: joao@email.com" /> */}
-                {/* <TextField label="Telefone" placeholder="Ex: (DDD) 9 9999.9999" /> */}
-                {/* <TextField label="Senha" placeholder="Informe sua senha" secureTextEntry /> */}
-                {/* <TextField label="Repetir senha" placeholder="Repita sua senha" secureTextEntry /> */}
-                {/* <Button
-                  pressStyle={{ backgroundColor: '#440F69' }}
-                  style={{ backgroundColor: '#54187E' }}
-                  onPress={() => console.log('login')}>
-                  Finalizar cadastro
-                </Button> */}
               </YStack>
             </YStack>
           </YStack>

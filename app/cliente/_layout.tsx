@@ -4,7 +4,7 @@ export default function Layout() {
   return (
     <Stack>
       <Stack.Screen name="cadastro" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ headerShown: true }} />
+      <Stack.Screen name="login" options={{ headerShown: false }} />
     </Stack>
   );
 }

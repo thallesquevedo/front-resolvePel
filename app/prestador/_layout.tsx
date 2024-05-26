@@ -1,9 +1,17 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
+import { useEffect } from 'react';
 
 import { useAuth } from '~/context/auth-context';
 
 export default function Layout() {
   const { authState } = useAuth();
+
+  useEffect(() => {
+    if (authState?.authenticated) {
+      router.replace('./prestador/id');
+    }
+  }, []);
+
   return authState?.authenticated ? (
     <Stack>
       <Stack.Screen name="id" options={{ headerShown: false }} />
