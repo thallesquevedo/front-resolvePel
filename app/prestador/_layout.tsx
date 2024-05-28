@@ -13,13 +13,13 @@ export default function Layout() {
   }, []);
 
   return authState?.authenticated ? (
-    <Stack>
-      <Stack.Screen name="id" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="id" />
     </Stack>
   ) : (
-    <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="cadastro" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="cadastro" />
     </Stack>
   );
 }
