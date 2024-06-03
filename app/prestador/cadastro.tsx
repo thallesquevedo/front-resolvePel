@@ -1,16 +1,16 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useToastController } from '@tamagui/toast';
 import { Link, router } from 'expo-router';
 import React from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { Button, ScrollView, Text, YStack } from 'tamagui';
 import * as yup from 'yup';
 
 import ResolvePelLogo from '~/components/resolvePelLogo/resolvePel-logo';
 import { useAuth } from '~/context/auth-context';
-import { checkEmailRegister } from '~/helpers/resolvers/auth';
+import { checkEmailRegister, checkPhoneRegister } from '~/helpers/resolvers/auth';
 
 interface IFormInputs {
   name: string;
@@ -33,8 +33,8 @@ const formSchema = yup.object().shape({
     .string()
     .min(11, 'Telefone inválido')
     .max(11, 'Telefone inválido')
-    .required('Telefone é obrigatório'),
-  // .test('is-valid-phone', 'Já existe uma conta com esse telefone', checkPhoneRegister),
+    .required('Telefone é obrigatório')
+    .test('is-valid-phone', 'Já existe uma conta com esse telefone', checkPhoneRegister),
   password: yup
     .string()
     .min(8, 'Sua senha deve ter no mínimo 8 caracteres')
@@ -52,23 +52,31 @@ const Cadastro = () => {
     formState: { errors },
   } = useForm<IFormInputs>({ mode: 'all', resolver: yupResolver(formSchema) });
   const { onRegister } = useAuth();
-  const toast = useToastController();
 
   const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
     try {
-      console.log('data', data);
-      await onRegister!(data.name, data.email, data.password, data.cpf, data.phone);
+      await onRegister!(data.name, data.email, data.password, data.cpf, '+55' + data.phone);
       router.replace('./login');
     } catch (error: any) {
-      console.log('error', error);
-      toast.show('Erro', { duration: 5000, title: 'Algo deu errado, tente novamente' });
-      alert('Algo deu errado, tente novamente');
+      Toast.show({
+        type: 'error',
+        text1: error.response.data.mensagem.texto,
+        visibilityTime: 5000,
+        autoHide: true,
+        position: 'bottom',
+        text1Style: { fontSize: 18 },
+      });
     }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <YStack backgroundColor="white" flex={1} justifyContent="space-between" marginHorizontal={20}>
+      <YStack
+        backgroundColor="white"
+        flex={1}
+        justifyContent="space-between"
+        marginHorizontal={20}
+        marginBottom={20}>
         <ScrollView>
           <YStack marginTop={40} marginBottom={20}>
             <ResolvePelLogo height={37} width={197} />

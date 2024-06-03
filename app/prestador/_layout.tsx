@@ -8,13 +8,13 @@ export default function Layout() {
 
   useEffect(() => {
     if (authState?.authenticated) {
-      router.replace('./prestador/id');
+      router.replace('./prestador/');
     }
   }, []);
 
   return authState?.authenticated ? (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="id" />
+      <Stack.Screen name="(drawer)" />
     </Stack>
   ) : (
     <Stack screenOptions={{ headerShown: false }}>

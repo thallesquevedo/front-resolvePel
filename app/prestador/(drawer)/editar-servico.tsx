@@ -1,3 +1,4 @@
+import { usePathname } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { Button } from 'tamagui';
@@ -5,11 +6,13 @@ import { Button } from 'tamagui';
 import { useAuth } from '~/context/auth-context';
 
 const Page = () => {
-  const { onLogout } = useAuth();
+  const { onLogout, authState } = useAuth();
+  const pathname = usePathname();
+  console.log('pathname', pathname);
+
   return (
     <View>
-      <Text>Page authenticated</Text>
-      <Button onPress={() => onLogout!()}>Logout</Button>
+      <Text>Editar serviço</Text>
     </View>
   );
 };

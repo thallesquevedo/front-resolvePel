@@ -1,6 +1,7 @@
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
+import Toast from 'react-native-toast-message';
 import { TamaguiProvider } from 'tamagui';
 
 import config from '../tamagui.config';
@@ -29,6 +30,7 @@ export default function Layout() {
           <Stack.Screen name="prestador" options={{ headerShown: false }} />
           <Stack.Screen name="cliente" options={{ headerShown: false }} />
         </Stack>
+        <Toast />
       </TamaguiProvider>
     </AuthProvider>
   );

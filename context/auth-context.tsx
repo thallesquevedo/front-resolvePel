@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { jwtDecode } from 'jwt-decode';
 import { createContext, useContext, useEffect, useState } from 'react';
+import 'core-js/stable/atob';
 
 interface AuthProps {
-  authState?: { token: string | null; authenticated: boolean | null };
+  authState?: { token: string | null; authenticated: boolean | null; user: any };
   onRegister?: (
     name: string,
     email: string,
@@ -28,7 +30,8 @@ export const AuthProvider = ({ children }: any) => {
   const [authState, setAuthState] = useState<{
     token: string | null;
     authenticated: boolean | null;
-  }>({ token: null, authenticated: null });
+    user: any;
+  }>({ token: null, authenticated: null, user: null });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,9 +39,9 @@ export const AuthProvider = ({ children }: any) => {
       const token = await SecureStore.getItemAsync('token');
       if (token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        setAuthState({ token, authenticated: true });
+        setAuthState({ token, authenticated: true, user: jwtDecode(token) });
       } else {
-        setAuthState({ token: null, authenticated: false });
+        setAuthState({ token: null, authenticated: false, user: null });
       }
     };
     loadToken();
@@ -70,6 +73,7 @@ export const AuthProvider = ({ children }: any) => {
       setAuthState({
         token: result.data.conteudo.token,
         authenticated: true,
+        user: jwtDecode(result.data.conteudo.token),
       });
 
       axios.defaults.headers.common['Authorization'] = `Bearer ${result.data.token}`;
@@ -85,8 +89,8 @@ export const AuthProvider = ({ children }: any) => {
 
     axios.defaults.headers.common['Authorization'] = '';
 
-    setAuthState({ token: null, authenticated: false });
-    router.replace('./login');
+    setAuthState({ token: null, authenticated: false, user: null });
+    router.replace(`/prestador/login`);
   };
 
   const value: AuthProps = {

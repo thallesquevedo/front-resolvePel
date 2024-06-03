@@ -1,12 +1,11 @@
 import { emailIsUsed, phoneIsUsed } from '~/services/auth';
 
 export async function checkPhoneRegister(val: any) {
-  console.log(val);
   if (val.length !== 11) {
     return false;
   }
   try {
-    await phoneIsUsed({ phone: val });
+    await phoneIsUsed({ phone: '+55' + val });
     return true;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
@@ -20,7 +19,6 @@ export async function checkEmailRegister(val: any) {
     return true;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.log(error);
     return false;
   }
 }
