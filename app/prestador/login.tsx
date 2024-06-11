@@ -105,7 +105,7 @@ const Login = () => {
                 </YStack>
                 <YStack gap={5}>
                   <Text fontWeight="bold" color="#1A1A1A" fontSize={14}>
-                    E-mail
+                    Senha
                   </Text>
                   <Controller
                     control={control}
