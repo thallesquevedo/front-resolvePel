@@ -1,13 +1,13 @@
+import { render } from '@testing-library/react-native';
 import React from 'react';
 import { TamaguiProvider } from 'tamagui';
-import Login from './login';
-import config from '~/tamagui.config';
-import { useAuth } from '~/context/auth-context';
-import { render } from '@testing-library/react';
 
-jest.mock('~/context/auth-context', () => ({
-  useAuth: jest.fn(),
-}));
+import Login from './login';
+
+import { useAuth } from '~/context/auth-context';
+import config from '~/tamagui.config';
+
+jest.mock('~/context/auth-context');
 
 describe('Login', () => {
   const mockLogin = (
@@ -16,14 +16,9 @@ describe('Login', () => {
     </TamaguiProvider>
   );
 
-  beforeEach(() => {
-    jest.resetAllMocks();
-    (useAuth as jest.Mock).mockReturnValue({
-      onLogin: jest.fn(),
-    });
-  });
-
   it('should render the Login screen', () => {
+    const onLogin = jest.fn();
+    (useAuth as jest.Mock).mockReturnValue({ onLogin });
     const { getByText, getByPlaceholderText } = render(mockLogin);
 
     expect(getByText('Faça Login')).toBeTruthy();
