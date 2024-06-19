@@ -38,7 +38,7 @@ describe('Home', () => {
     expect(router.navigate).toHaveBeenCalledWith('./prestador/login');
   })
 
-  it('You must access the service catalog page by clicking on the Access as Customer button', () => {
+  it('should access the service catalog page by clicking on the Access as Customer button', () => {
     const { getByText } = render(mockHome);
     const buttonProviderAccess = getByText('Entrar como Cliente');
     fireEvent.press(buttonProviderAccess);
