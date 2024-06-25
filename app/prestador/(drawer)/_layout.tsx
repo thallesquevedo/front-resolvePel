@@ -23,6 +23,7 @@ export default function Layout() {
         headerRight: () => <DrawerToggleButton />,
         headerRightContainerStyle: { marginRight: 20 },
         headerLeft: () => null,
+        headerBackgroundContainerStyle: { borderBottomWidth: 1, opacity: 0.2 },
       }}
       drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen

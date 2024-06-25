@@ -3,7 +3,9 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from 'jwt-decode';
 import { createContext, useContext, useEffect, useState } from 'react';
+
 import 'core-js/stable/atob';
+import client from '~/services/client';
 
 interface AuthProps {
   authState?: { token: string | null; authenticated: boolean | null; user: any };
@@ -55,7 +57,7 @@ export const AuthProvider = ({ children }: any) => {
     phone: string
   ) => {
     try {
-      return await axios.post('http://172.25.128.1:3000/user', {
+      return await client.post('/user', {
         name,
         email,
         password,
@@ -69,14 +71,14 @@ export const AuthProvider = ({ children }: any) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const result = await axios.post('http://172.25.128.1:3000/login', { email, password });
+      const result = await client.post('/login', { email, password });
       setAuthState({
         token: result.data.conteudo.token,
         authenticated: true,
         user: jwtDecode(result.data.conteudo.token),
       });
 
-      axios.defaults.headers.common['Authorization'] = `Bearer ${result.data.token}`;
+      client.defaults.headers.common['Authorization'] = `Bearer ${result.data.token}`;
       await SecureStore.setItemAsync('token', result.data.conteudo.token);
       return result;
     } catch (error) {
@@ -87,10 +89,10 @@ export const AuthProvider = ({ children }: any) => {
   const logout = async () => {
     await SecureStore.deleteItemAsync('token');
 
-    axios.defaults.headers.common['Authorization'] = '';
+    client.defaults.headers.common['Authorization'] = '';
 
     setAuthState({ token: null, authenticated: false, user: null });
-    router.replace(`/prestador/login`);
+    router.replace(`/`);
   };
 
   const value: AuthProps = {

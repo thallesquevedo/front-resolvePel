@@ -8,7 +8,7 @@ import { useAuth } from '~/context/auth-context';
 const Page = () => {
   const { onLogout, authState } = useAuth();
   const pathname = usePathname();
-  console.log('pathname', pathname);
+  // console.log('pathname', pathname);
 
   return (
     <View>
