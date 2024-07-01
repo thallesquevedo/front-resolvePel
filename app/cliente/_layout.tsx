@@ -13,7 +13,7 @@ export default function Layout() {
           headerTitle: () => <ResolvePelLogo width={184} height={34} />,
         }}>
         <Stack.Screen name="home" />
-        <Stack.Screen name="[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="[id]" />
       </Stack>
     </GestureHandlerRootView>
   );

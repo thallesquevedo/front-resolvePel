@@ -7,7 +7,7 @@ import ResolvePelLogo from '~/components/resolvePelLogo/resolvePel-logo';
 import { useAuth } from '~/context/auth-context';
 
 export default function Layout() {
-  const { authState, onLogout } = useAuth();
+  const { authState } = useAuth();
 
   if (!authState?.authenticated) {
     return <Redirect href="./login" />;

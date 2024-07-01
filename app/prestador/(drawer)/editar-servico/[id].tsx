@@ -5,11 +5,10 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { ActivityIndicator } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Toast from 'react-native-toast-message';
-import { Button, ScrollView, Text, TextArea, View, XStack, YStack } from 'tamagui';
+import { Button, ScrollView, Text, TextArea, XStack, YStack } from 'tamagui';
 import * as yup from 'yup';
 
 import CheckedIcon from '~/components/checkedIcon/checked-icon';
-import { useAuth } from '~/context/auth-context';
 import {
   fetchItems,
   fetchServices,
@@ -32,7 +31,6 @@ const formCreateServiceSchema = yup.object().shape({
 });
 
 const AtualizarServicoPage = () => {
-  const { onLogout, authState } = useAuth();
   const {
     handleSubmit,
     control,

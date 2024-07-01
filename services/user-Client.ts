@@ -69,3 +69,11 @@ export const fetchAllOrdemServico = async () => {
     throw error;
   }
 };
+
+export const fetchClienteOrdemServico = async (id: string) => {
+  try {
+    return await client.get(`/req-servico/cliente/${id}`);
+  } catch (error) {
+    throw error;
+  }
+};
