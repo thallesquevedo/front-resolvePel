@@ -50,12 +50,4 @@ describe('Login', () => {
       expect(getByText('E-mail inválido')).toBeTruthy();
     });
   });
-
-  //pedir ajuda para corrigir
-  // it('should access the service registration page by clicking the button', () => {
-  //   const { getByText } = render(mockLogin);
-  //   const criarContaButton = getByText('Criar conta');
-  //   fireEvent.press(criarContaButton);
-  //   expect(router.navigate).toHaveBeenCalledWith('./cadastro');
-  // });
 });

@@ -1,17 +1,22 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { router, useFocusEffect, useNavigation } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { ActivityIndicator } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Toast from 'react-native-toast-message';
-import { Button, ScrollView, Text, TextArea, XStack, YStack } from 'tamagui';
+import { Button, ScrollView, Text, TextArea, View, XStack, YStack } from 'tamagui';
 import * as yup from 'yup';
 
 import CheckedIcon from '~/components/checkedIcon/checked-icon';
 import { useAuth } from '~/context/auth-context';
-import { createReqService, fetchItems, fetchServices } from '~/services/user-Client';
-interface ICreateServiceInputs {
+import {
+  fetchItems,
+  fetchServices,
+  fetchUniqueReqServiceByUser,
+  updateReqService,
+} from '~/services/user-Client';
+interface IUpdateServiceInputs {
   servicoId: string;
   itemIds: number[];
   descricao: string;
@@ -26,13 +31,14 @@ const formCreateServiceSchema = yup.object().shape({
   descricao: yup.string().required('É necessário informar uma descrição'),
 });
 
-const CriarServicoPage = () => {
+const AtualizarServicoPage = () => {
   const { onLogout, authState } = useAuth();
   const {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<ICreateServiceInputs>({
+    setValue,
+  } = useForm<IUpdateServiceInputs>({
     mode: 'onBlur',
     resolver: yupResolver(formCreateServiceSchema),
   });
@@ -44,66 +50,54 @@ const CriarServicoPage = () => {
   const [servicosLista, setServicosLista] = useState<any[]>([]); // lista de serviços do back
   const [valueServicoSelecionado, setValueServicoSelecionado] = useState(null); // valor do dropdown do servico
 
-  const [isLoading, setIsLoading] = useState(true); // estado de carregamento
-  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true); // estado de carregamento
+  const { id } = useLocalSearchParams();
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        setIsLoading(true);
+        setLoading(true);
         try {
           const items = await fetchItems();
           const services = await fetchServices();
+          const ordemServico = await fetchUniqueReqServiceByUser(id as string);
+          const {
+            items: itemsFromOrdemServico,
+            servico: servicosFromOrdemServico,
+            descricao: descricaoFromOrdemServico,
+          } = ordemServico.data;
+
           setItemsLista(items.data);
           setServicosLista(services.data);
+          setValueServicoSelecionado(servicosFromOrdemServico.id);
+          setItemsSelecionados(itemsFromOrdemServico.map((item: any) => item.id));
+          setValue('descricao', descricaoFromOrdemServico);
         } catch (error) {
           console.log(error);
         } finally {
-          setIsLoading(false);
+          setLoading(false);
         }
       };
       fetchData();
       return () => fetchData();
-    }, [])
+    }, [id])
   );
-  // useEffect(() => {
-  //   navigation.addListener('focus', () => {
-  //     const fetchData = async () => {
-  //       try {
-  //         setIsLoading(true);
-  //         setItemsLista([]);
-  //         setServicosLista([]);
-  //         const items = await fetchItems();
-  //         const services = await fetchServices();
-  //         setItemsLista(items.data);
-  //         setServicosLista(services.data);
-  //       } catch (error) {
-  //         console.log(error);
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     };
-  //     fetchData();
-  //   });
-  // }, [navigation]);
 
-  console.log(isLoading);
-
-  const onSubmit: SubmitHandler<ICreateServiceInputs> = async (data) => {
+  const onSubmit: SubmitHandler<IUpdateServiceInputs> = async (data) => {
     const transformData = {
       servicoId: Number(data.servicoId),
       itemIds: data.itemIds,
       descricao: data.descricao,
     };
     try {
-      const response = await createReqService(transformData);
+      const response = await updateReqService(id as string, transformData);
       setTimeout(() => {
         router.push('/prestador/(drawer)/home');
       }, 5000);
       Toast.show({
         type: 'success',
-        text1: 'Serviço criado com sucesso',
-        text2: 'Seu serviço foi criado com sucesso',
+        text1: 'Serviço alterado com sucesso',
+        text2: 'Seu serviço foi alterado com sucesso',
         visibilityTime: 5000,
         autoHide: true,
         position: 'bottom',
@@ -122,7 +116,7 @@ const CriarServicoPage = () => {
     setOpenServicoDropdown(false);
   }, []);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <XStack flex={1} justifyContent="center">
         <ActivityIndicator size={50} color="#54187E" />
@@ -134,7 +128,7 @@ const CriarServicoPage = () => {
     <ScrollView paddingHorizontal={20} paddingVertical={30} backgroundColor="white">
       <YStack marginBottom={17}>
         <Text fontWeight="bold" fontSize={25}>
-          Criar serviço
+          Editar serviço
         </Text>
       </YStack>
 
@@ -167,10 +161,10 @@ const CriarServicoPage = () => {
               TickIconComponent={() => <CheckedIcon />}
               style={{ borderColor: '#C5C5C5' }}
               dropDownContainerStyle={{ borderTopWidth: 0, borderColor: '#C5C5C5' }}
+              listItemContainerStyle={{ height: 25 }}
               selectedItemContainerStyle={{
                 backgroundColor: 'rgba(84, 24, 126, 0.1)',
-                marginVertical: 3,
-                height: 25,
+                marginVertical: 6,
               }}
               zIndex={9999}
               onChangeValue={(value) => onChange(value)}
@@ -212,10 +206,10 @@ const CriarServicoPage = () => {
               TickIconComponent={() => <CheckedIcon />}
               style={{ borderColor: '#C5C5C5' }}
               dropDownContainerStyle={{ borderTopWidth: 0, borderColor: '#C5C5C5' }}
+              listItemContainerStyle={{ height: 25 }}
               selectedItemContainerStyle={{
                 backgroundColor: 'rgba(84, 24, 126, 0.1)',
-                marginVertical: 3,
-                height: 25,
+                marginVertical: 6,
               }}
               zIndex={5555}
               onChangeValue={(value) => onChange(value)}
@@ -281,4 +275,4 @@ const CriarServicoPage = () => {
   );
 };
 
-export default CriarServicoPage;
+export default AtualizarServicoPage;

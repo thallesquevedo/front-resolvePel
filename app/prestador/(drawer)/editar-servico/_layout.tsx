@@ -16,7 +16,7 @@ export default function Layout() {
   return (
     <Drawer
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         headerTitleAlign: 'center',
         drawerPosition: 'right',
         headerTitle: () => <ResolvePelLogo width={184} height={34} />,
@@ -29,22 +29,10 @@ export default function Layout() {
       }}
       drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen
-        name="home"
-        options={{
-          drawerLabel: 'Home',
-        }}
-      />
-      <Drawer.Screen
-        name="editar-servico"
+        name="[id]"
         options={{
           drawerLabel: 'Editar serviço',
           drawerItemStyle: { display: 'none' },
-        }}
-      />
-      <Drawer.Screen
-        name="criar-servico"
-        options={{
-          drawerLabel: 'Criar serviço',
         }}
       />
     </Drawer>

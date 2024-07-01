@@ -36,7 +36,7 @@ export default function Home() {
           <Button
             pressStyle={{ backgroundColor: '#440F69' }}
             style={{ backgroundColor: '#54187E' }}
-            onPress={() => router.navigate('./cliente/cadastro')}>
+            onPress={() => router.navigate('./cliente/home')}>
             Entrar como Cliente
           </Button>
           <Button

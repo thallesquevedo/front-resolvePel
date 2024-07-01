@@ -32,7 +32,7 @@ describe('Cadastro', () => {
   });
 
   jest.mock('~/context/auth-context', () => ({
-    useAuth: jest.fn(), // Certifique-se de que useAuth é uma função mockada
+    useAuth: jest.fn(),
   }));
 
   //pedir ajuda para corrigir

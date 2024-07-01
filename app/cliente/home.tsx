@@ -1,26 +1,22 @@
-import { useNavigation, useRouter } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { Button, Image, ScrollView, Text, XStack, YStack } from 'tamagui';
+import { Image, ScrollView, Text, XStack, YStack } from 'tamagui';
 
-import CardOrderService from '~/components/card-order-service/card-order-service';
-import { useAuth } from '~/context/auth-context';
-import { fetchReqServiceByUser } from '~/services/user-Client';
+import CardOrderService from '~/components/client-card-order-service/client-card-order-service';
+import { fetchAllOrdemServico } from '~/services/user-Client';
 
-const Page = () => {
-  const { authState } = useAuth();
-  const router = useRouter();
-  const [isModalVisible, setModalVisible] = useState(false);
+const ClienteHome = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [services, setServices] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
     const a = navigation.addListener('focus', () => {
-      const fetchServices = async () => {
+      const fetchContent = async () => {
         try {
           setIsLoading(true);
-          const response = await fetchReqServiceByUser();
+          const response = await fetchAllOrdemServico();
           setServices(response.data);
         } catch (error) {
           console.log(error);
@@ -28,7 +24,7 @@ const Page = () => {
           setIsLoading(false);
         }
       };
-      fetchServices();
+      fetchContent();
     });
     return a;
   }, [navigation]);
@@ -43,25 +39,8 @@ const Page = () => {
 
   return (
     <ScrollView paddingVertical={30} paddingHorizontal={20} backgroundColor="white">
-      <YStack marginBottom={20} gap={10}>
-        <Text color="#1E1E1E" fontSize={25} fontWeight="bold">
-          Olá, {authState?.user?.name}
-        </Text>
-        <Text color="#848484" fontSize={16}>
-          Veja abaixo todos os seus serviços
-        </Text>
-      </YStack>
       {services?.length !== 0 ? (
         <YStack gap={20} marginBottom={45}>
-          <Button
-            pressStyle={{ backgroundColor: '#440F69' }}
-            backgroundColor="#54187E"
-            onPress={() => {
-              router.push('/prestador/(drawer)/criar-servico');
-            }}
-            fontSize={16}>
-            + Criar serviço
-          </Button>
           <YStack gap={10}>
             {services.map((service) => (
               <CardOrderService
@@ -70,8 +49,6 @@ const Page = () => {
                 descricao={service?.descricao}
                 items={service?.items}
                 servico={service?.servico}
-                isModalVisible={isModalVisible}
-                setIsModalVisible={setModalVisible}
               />
             ))}
           </YStack>
@@ -91,20 +68,10 @@ const Page = () => {
               Clique no botão abaixo para criar seu primeiro serviço
             </Text>
           </YStack>
-          <Button
-            width={230}
-            pressStyle={{ backgroundColor: '#440F69' }}
-            backgroundColor="#54187E"
-            onPress={() => {
-              router.push('/prestador/(drawer)/criar-servico');
-            }}
-            fontSize={16}>
-            + Criar serviço
-          </Button>
         </YStack>
       )}
     </ScrollView>
   );
 };
 
-export default Page;
+export default ClienteHome;

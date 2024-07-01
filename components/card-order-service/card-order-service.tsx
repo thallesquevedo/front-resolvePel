@@ -31,7 +31,7 @@ const CardOrderService = ({
   return (
     <YStack height={377} borderColor="#6D6D6D" borderWidth={1} borderRadius={14} overflow="hidden">
       <XStack zIndex={1} position="absolute" top={15} right={15} gap={10}>
-        <TouchableOpacity onPress={() => router.push('/prestador/(drawer)/editar-servico')}>
+        <TouchableOpacity onPress={() => router.push(`/prestador/(drawer)/editar-servico/${id}`)}>
           <View backgroundColor="#1E1E1E" padding={7} borderRadius="$12">
             <EditIcon size={16} />
           </View>
@@ -57,7 +57,8 @@ const CardOrderService = ({
           width={230}
           paddingHorizontal={24}
           paddingVertical={4}
-          backgroundColor="#54187E">
+          backgroundColor="#54187E"
+          borderRadius={4}>
           <Text color="white">{servico?.name}</Text>
         </XStack>
       </YStack>

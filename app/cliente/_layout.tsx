@@ -1,10 +1,20 @@
 import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+import ResolvePelLogo from '~/components/resolvePelLogo/resolvePel-logo';
 
 export default function Layout() {
   return (
-    <Stack>
-      <Stack.Screen name="cadastro" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack
+        screenOptions={{
+          headerShown: true,
+          headerTitleAlign: 'center',
+          headerTitle: () => <ResolvePelLogo width={184} height={34} />,
+        }}>
+        <Stack.Screen name="home" />
+        <Stack.Screen name="[id]" options={{ headerShown: false }} />
+      </Stack>
+    </GestureHandlerRootView>
   );
 }

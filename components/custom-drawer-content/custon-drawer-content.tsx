@@ -14,7 +14,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   return (
     <DrawerContentScrollView>
       <DrawerItemList {...props} />
-      <DrawerItem label="Sair" onPress={onLogout!} />
+      <DrawerItem label="Sair" onPress={onLogout!} pressColor="rgba(84, 24, 126, 0.2)" />
     </DrawerContentScrollView>
   );
 };
