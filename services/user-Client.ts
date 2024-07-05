@@ -77,3 +77,11 @@ export const fetchClienteOrdemServico = async (id: string) => {
     throw error;
   }
 };
+
+export const addView = async () => {
+  try {
+    return await client.post('/analytics');
+  } catch (error) {
+    throw error;
+  }
+};

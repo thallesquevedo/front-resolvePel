@@ -41,6 +41,6 @@ describe('Home', () => {
     const { getByText } = render(mockHome);
     const buttonProviderAccess = getByText('Entrar como Cliente');
     fireEvent.press(buttonProviderAccess);
-    expect(router.navigate).toHaveBeenCalledWith('./cliente/cadastro');
+    expect(router.navigate).toHaveBeenCalledWith('./cliente/home');
   });
 });

@@ -1,6 +1,7 @@
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Image, ScrollView, Text, XStack, YStack } from 'tamagui';
 
 import CardOrderService from '~/components/client-card-order-service/client-card-order-service';
@@ -18,8 +19,15 @@ const ClienteHome = () => {
           setIsLoading(true);
           const response = await fetchAllOrdemServico();
           setServices(response.data);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          Toast.show({
+            type: 'error',
+            text1: 'Erro ao buscar serviços',
+            text2: 'Tente novamente mais tarde',
+            autoHide: true,
+            visibilityTime: 2000,
+          });
+          router.push('/');
         } finally {
           setIsLoading(false);
         }
@@ -32,7 +40,7 @@ const ClienteHome = () => {
   if (isLoading) {
     return (
       <XStack flex={1} justifyContent="center" backgroundColor="white">
-        <ActivityIndicator size={50} color="#54187E" />
+        <ActivityIndicator testID="loading-indicator" size={50} color="#54187E" />
       </XStack>
     );
   }

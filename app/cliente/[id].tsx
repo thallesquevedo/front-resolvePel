@@ -2,21 +2,36 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Linking } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Button, Image, ScrollView, Text, View, XStack, YStack } from 'tamagui';
+import Toast from 'react-native-toast-message';
+import { Button, Image, ScrollView, Text, XStack, YStack } from 'tamagui';
 
-import { fetchClienteOrdemServico } from '~/services/user-Client';
+import { addView, fetchClienteOrdemServico } from '~/services/user-Client';
 
 const ClienteOrdemServicoPage = () => {
   const { id } = useLocalSearchParams();
   const [ordemServico, setOrdemServico] = useState<any>({});
-  const [isTrue, setIsTrue] = useState(true);
+  const [showPrestadorInfo, setShowPrestadorInfo] = useState(false);
 
   const onOpenWpp = () => {
-    const phoneNumber = '53981236697'; // Substitua pelo número de telefone
+    const phoneNumber = ordemServico?.user?.phone;
     const message = encodeURIComponent('Olá, gostaria de mais informações.'); // Mensagem pré-definida
     const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
 
     Linking.openURL(url).catch((err) => console.error('An error occurred', err));
+  };
+
+  const onAddView = async () => {
+    try {
+      await addView();
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'Algo deu errado!',
+        text2: 'Tente novamente mais tarde',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+    }
   };
 
   useFocusEffect(
@@ -25,9 +40,14 @@ const ClienteOrdemServicoPage = () => {
         try {
           const response = await fetchClienteOrdemServico(id as string);
           setOrdemServico(response.data);
-          console.log(ordemServico);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          Toast.show({
+            type: 'error',
+            text1: 'Algo deu errado!',
+            text2: 'Tente novamente mais tarde',
+            autoHide: true,
+            visibilityTime: 2000,
+          });
         }
       };
       fetchData();
@@ -56,7 +76,7 @@ const ClienteOrdemServicoPage = () => {
             <Text color="white">{ordemServico?.servico?.name}</Text>
           </XStack>
         </YStack>
-        {isTrue ? (
+        {!showPrestadorInfo ? (
           <YStack gap={20}>
             <YStack gap={8}>
               <Text fontSize={18} fontWeight="600">
@@ -68,7 +88,10 @@ const ClienteOrdemServicoPage = () => {
               </Text>
             </YStack>
             <Button
-              onPress={() => setIsTrue(false)}
+              onPress={() => {
+                onAddView();
+                setShowPrestadorInfo(true);
+              }}
               pressStyle={{ backgroundColor: '#440F69' }}
               style={{ backgroundColor: '#54187E' }}>
               Acessar dados

@@ -8,7 +8,12 @@ interface ResolvePelLogoProps {
 
 const ResolvePelLogo = ({ width, height }: ResolvePelLogoProps) => {
   return (
-    <Svg width="197" height="37" viewBox="0 0 197 37" fill="none">
+    <Svg
+      width={width}
+      height={height}
+      viewBox="0 0 197 37"
+      fill="none"
+      testID="resolve-pel-logo-svg">
       <Path
         fillRule="evenodd"
         clipRule="evenodd"

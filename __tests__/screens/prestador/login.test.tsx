@@ -11,10 +11,10 @@ jest.mock('~/context/auth-context', () => ({
   useAuth: jest.fn(),
 }));
 
-const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
   router: {
-    replace: mockReplace,
+    replace: jest.fn(),
+    navigate: jest.fn(),
   },
 }));
 
@@ -49,5 +49,15 @@ describe('Login', () => {
     await waitFor(() => {
       expect(getByText('E-mail inválido')).toBeTruthy();
     });
+  });
+
+  it('should navigate to cadastro screen when clicking on "Criar conta"', async () => {
+    const { getByText } = render(mockLogin);
+
+    const criarContaButton = getByText('Criar conta');
+
+    fireEvent.press(criarContaButton);
+
+    expect(router.navigate).toHaveBeenCalledWith('./cadastro');
   });
 });

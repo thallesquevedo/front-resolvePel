@@ -1,10 +1,8 @@
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { TamaguiProvider } from 'tamagui';
-import { number } from 'yup';
 
 import Cadastro from '~/app/prestador/cadastro';
-import { useAuth } from '~/context/auth-context';
 import config from '~/tamagui.config';
 
 describe('Cadastro', () => {
@@ -35,21 +33,16 @@ describe('Cadastro', () => {
     useAuth: jest.fn(),
   }));
 
-  //pedir ajuda para corrigir
-  // it('should access the login page by clicking the button', () => {
-  //     const { getByText } = render(mockCadastro);
-  //     const loginButton = getByText('Clique aqui');
-  //     fireEvent.press(loginButton);
-  //     expect(router.navigate).toHaveBeenCalledWith('./login');
-  // });
+  jest.mock('expo-router', () => ({
+    router: {
+      replace: jest.fn(),
+      navigate: jest.fn(),
+    },
+  }));
 
-  //criar cenário que valida cadastro com sucesso
-  //criar cenário cpf menor que 11 caracteres e sua respectiva mensagem
-  //criar cenário com email inválido e sua respectiva mensagem
-  //criar cenário com telefone inválido e sua respectiva mensagem
-  //criar cenário com senha menor que 8 caracteres e sua respectiva mensagem
-  //criar cenário de senha e repetir senha diferentes e sua respectiva mensagem
-  //criar cenário que cadastra e vai apra login
+  jest.mock('react-native-toast-message', () => ({
+    show: jest.fn(),
+  }));
 
   it('must show a mandatory field message when trying to finish without filling in the name field', async () => {
     const { getByPlaceholderText, getByText, queryByText } = render(mockCadastro);
@@ -139,5 +132,60 @@ describe('Cadastro', () => {
     });
 
     expect(getByText('Campo obrigatório')).not.toBeNull();
+  });
+
+  it('must show a message when the password and repeat password fields are different', async () => {
+    const { getByPlaceholderText, getByText, queryByText } = render(mockCadastro);
+
+    const campoSenha = getByPlaceholderText('Informe sua senha');
+    const campoRepeatSenha = getByPlaceholderText('Repita sua senha');
+    const buttonFinalizaCadastro = getByText('Finalizar cadastro');
+
+    fireEvent.changeText(campoSenha, '12345678');
+    fireEvent.changeText(campoRepeatSenha, '87654321');
+
+    expect(queryByText('Senhas não conferem')).toBeNull();
+
+    fireEvent.press(buttonFinalizaCadastro);
+
+    await waitFor(() => {
+      expect(getByText('Senhas não conferem')).toBeTruthy();
+    });
+
+    expect(getByText('Senhas não conferem')).not.toBeNull();
+  });
+
+  it('must show a message when the CPF field has less than 11 characters', async () => {
+    const { getByPlaceholderText, getByText } = render(mockCadastro);
+
+    const campoCPF = getByPlaceholderText('Ex: 000.000.000-00');
+    const buttonFinalizaCadastro = getByText('Finalizar cadastro');
+
+    fireEvent.changeText(campoCPF, '1234567890');
+
+    fireEvent.press(buttonFinalizaCadastro);
+
+    await waitFor(() => {
+      expect(getByText('CPF Inválido')).toBeTruthy();
+    });
+
+    expect(getByText('CPF Inválido')).not.toBeNull();
+  });
+
+  it('must show a message when the email field is invalid', async () => {
+    const { getByPlaceholderText, getByText } = render(mockCadastro);
+
+    const campoEmail = getByPlaceholderText('Ex: joao@email.com');
+    const buttonFinalizaCadastro = getByText('Finalizar cadastro');
+
+    fireEvent.changeText(campoEmail, 'joaoemail.com');
+
+    fireEvent.press(buttonFinalizaCadastro);
+
+    await waitFor(() => {
+      expect(getByText('Email inválido')).toBeTruthy();
+    });
+
+    expect(getByText('Email inválido')).not.toBeNull();
   });
 });

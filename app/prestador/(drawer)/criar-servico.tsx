@@ -48,8 +48,8 @@ const CriarServicoPage = () => {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        setIsLoading(true);
         try {
+          setIsLoading(true);
           setItemsSelecionados([]);
           setValueServicoSelecionado(null);
           setValue('descricao', '');

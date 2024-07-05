@@ -1,6 +1,5 @@
 import { router } from 'expo-router';
 import { Dispatch, SetStateAction } from 'react';
-import { Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Image, Text, View, XStack, YStack } from 'tamagui';
 
@@ -20,18 +19,13 @@ interface ICardService {
   isModalVisible?: boolean;
 }
 
-const CardOrderService = ({
-  id,
-  descricao,
-  items,
-  servico,
-  setIsModalVisible,
-  isModalVisible,
-}: ICardService) => {
+const CardOrderService = ({ id, descricao, items, servico }: ICardService) => {
   return (
     <YStack height={377} borderColor="#6D6D6D" borderWidth={1} borderRadius={14} overflow="hidden">
       <XStack zIndex={1} position="absolute" top={15} right={15} gap={10}>
-        <TouchableOpacity onPress={() => router.push(`/prestador/(drawer)/editar-servico/${id}`)}>
+        <TouchableOpacity
+          onPress={() => router.push(`/prestador/(drawer)/editar-servico/${id}`)}
+          testID="navigate-to-edit-service">
           <View backgroundColor="#1E1E1E" padding={7} borderRadius="$12">
             <EditIcon size={16} />
           </View>
@@ -45,7 +39,7 @@ const CardOrderService = ({
       <Image source={{ uri: require('~/assets/instalacao.png') }} width="100%" height={214} />
       <YStack padding={15} gap={11} flex={1} justifyContent="space-between">
         <YStack gap={11}>
-          <Text fontWeight="500" fontSize={16}>
+          <Text fontWeight="500" fontSize={16} testID="service-name-title">
             {servico?.name}
           </Text>
           <Text fontSize={14} color="#6D6D6D">
@@ -59,7 +53,9 @@ const CardOrderService = ({
           paddingVertical={4}
           backgroundColor="#54187E"
           borderRadius={4}>
-          <Text color="white">{servico?.name}</Text>
+          <Text color="white" testID="service-name-tag">
+            {servico?.name}
+          </Text>
         </XStack>
       </YStack>
     </YStack>
