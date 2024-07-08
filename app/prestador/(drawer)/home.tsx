@@ -1,6 +1,7 @@
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Button, Image, ScrollView, Text, XStack, YStack } from 'tamagui';
 
 import CardOrderService from '~/components/card-order-service/card-order-service';
@@ -22,8 +23,14 @@ const Page = () => {
           setIsLoading(true);
           const response = await fetchReqServiceByUser();
           setServices(response.data);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          Toast.show({
+            type: 'error',
+            text1: 'Erro ao buscar serviços',
+            text2: 'Tente novamente mais tarde',
+            autoHide: true,
+            visibilityTime: 2000,
+          });
         } finally {
           setIsLoading(false);
         }
@@ -36,13 +43,13 @@ const Page = () => {
   if (isLoading) {
     return (
       <XStack flex={1} justifyContent="center" backgroundColor="white">
-        <ActivityIndicator size={50} color="#54187E" />
+        <ActivityIndicator size={50} color="#54187E" testID="loading-indicator" />
       </XStack>
     );
   }
 
   return (
-    <ScrollView paddingVertical={30} paddingHorizontal={20} backgroundColor="white">
+    <ScrollView paddingVertical={30} paddingHorizontal={20} backgroundColor="#FFF">
       <YStack marginBottom={20} gap={10}>
         <Text color="#1E1E1E" fontSize={25} fontWeight="bold">
           Olá, {authState?.user?.name}

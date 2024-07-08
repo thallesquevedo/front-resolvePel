@@ -143,4 +143,24 @@ describe('ClienteOrdemServicoPage', () => {
       });
     });
   });
+
+  it('shows error toast when fetchClienteOrdemServico fails', async () => {
+    mockFetchClienteOrdemServico.mockRejectedValueOnce(new Error('Network error'));
+
+    const { getByText } = render(mockScreen);
+
+    await waitFor(() => {
+      expect(getByText('Acessar dados')).toBeTruthy();
+    });
+
+    await waitFor(() => {
+      expect(mockToastShow).toHaveBeenCalledWith({
+        type: 'error',
+        text1: 'Algo deu errado!',
+        text2: 'Tente novamente mais tarde',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+    });
+  });
 });

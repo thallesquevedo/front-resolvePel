@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { TamaguiProvider } from 'tamagui';
 
 import Cadastro from '~/app/prestador/cadastro';
+import { useAuth } from '~/context/auth-context';
 import config from '~/tamagui.config';
 
 describe('Cadastro', () => {
