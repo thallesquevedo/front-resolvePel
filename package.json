@@ -27,7 +27,8 @@
     ],
     "coveragePathIgnorePatterns": [
       ".*_layout\\.tsx$",
-      "expo-env\\.d\\.ts"
+      "expo-env\\.d\\.ts",
+      "/custom-drawer-content/"
     ]
   },
   "dependencies": {

@@ -1,6 +1,7 @@
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
+import Toast from 'react-native-toast-message';
 import { TamaguiProvider } from 'tamagui';
 
 import Login from '~/app/prestador/login';
@@ -16,6 +17,10 @@ jest.mock('expo-router', () => ({
     replace: jest.fn(),
     navigate: jest.fn(),
   },
+}));
+
+jest.mock('react-native-toast-message', () => ({
+  show: jest.fn(),
 }));
 
 describe('Login', () => {
@@ -59,5 +64,57 @@ describe('Login', () => {
     fireEvent.press(criarContaButton);
 
     expect(router.navigate).toHaveBeenCalledWith('./cadastro');
+  });
+
+  it('should navigate to home screen when login is successful', async () => {
+    const onLogin = jest.fn();
+    (useAuth as jest.Mock).mockReturnValue({ onLogin });
+    const { getByText, getByPlaceholderText } = render(mockLogin);
+
+    const emailInput = getByPlaceholderText('Ex: joao@email.com');
+    const passwordInput = getByPlaceholderText('Informe sua senha');
+    const loginButton = getByText('Entrar');
+
+    fireEvent.changeText(emailInput, 'email@teste.com');
+    fireEvent.changeText(passwordInput, 'senha123');
+    fireEvent.press(loginButton);
+
+    await waitFor(() => {
+      expect(router.replace).toHaveBeenCalledWith('./');
+    });
+  });
+
+  it('should show error message when login fails', async () => {
+    const mockRejectedValue = {
+      response: {
+        data: {
+          mensagem: {
+            texto: 'Email e/ou senha inválido(s)',
+          },
+        },
+      },
+    };
+    const onLogin = jest.fn().mockRejectedValue(mockRejectedValue);
+    (useAuth as jest.Mock).mockReturnValue({ onLogin });
+    const { getByText, getByPlaceholderText } = render(mockLogin);
+
+    const emailInput = getByPlaceholderText('Ex: joao@email.com');
+    const passwordInput = getByPlaceholderText('Informe sua senha');
+    const loginButton = getByText('Entrar');
+
+    fireEvent.changeText(emailInput, 'email@teste.com');
+    fireEvent.changeText(passwordInput, 'senha1234');
+    fireEvent.press(loginButton);
+
+    await waitFor(() => {
+      expect(Toast.show).toHaveBeenCalledWith({
+        type: 'error',
+        text1: mockRejectedValue.response.data.mensagem.texto,
+        visibilityTime: 5000,
+        autoHide: true,
+        position: 'bottom',
+        text1Style: { fontSize: 18 },
+      });
+    });
   });
 });
