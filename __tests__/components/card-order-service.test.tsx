@@ -24,6 +24,7 @@ describe('CardOrderService', () => {
       id: 1,
       created_at: new Date(),
     },
+    setIsModalVisible: jest.fn(),
   };
 
   const mockComponent = (

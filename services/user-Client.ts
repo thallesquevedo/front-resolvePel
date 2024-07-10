@@ -1,3 +1,4 @@
+import { Try } from 'expo-router/build/views/Try';
 import * as SecureStore from 'expo-secure-store';
 
 import client from './client';
@@ -81,6 +82,17 @@ export const fetchClienteOrdemServico = async (id: string) => {
 export const addView = async () => {
   try {
     return await client.post('/analytics');
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteServiceById = async (id: string) => {
+  try {
+    const token = await SecureStore.getItemAsync('token');
+    return await client.delete(`/req-servico/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
   } catch (error) {
     throw error;
   }

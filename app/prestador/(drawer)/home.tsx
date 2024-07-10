@@ -6,39 +6,64 @@ import { Button, Image, ScrollView, Text, XStack, YStack } from 'tamagui';
 
 import CardOrderService from '~/components/card-order-service/card-order-service';
 import { useAuth } from '~/context/auth-context';
-import { fetchReqServiceByUser } from '~/services/user-Client';
+import { deleteServiceById, fetchReqServiceByUser } from '~/services/user-Client';
 
 const Page = () => {
   const { authState } = useAuth();
   const router = useRouter();
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [services, setServices] = useState([]);
   const navigation = useNavigation();
 
+  const deleteService = async (id: number) => {
+    try {
+      const response = await deleteServiceById(id.toString());
+      Toast.show({
+        type: 'success',
+        text1: 'Serviço deletado com sucesso',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+      setIsOpenDeleteModal(false);
+      fetchServices();
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro ao deletar serviço',
+        text2: 'Tente novamente mais tarde',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+      setIsOpenDeleteModal(false);
+      fetchServices();
+    }
+  };
+
+  const fetchServices = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetchReqServiceByUser();
+      setServices(response.data);
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro ao buscar serviços',
+        text2: 'Tente novamente mais tarde',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const a = navigation.addListener('focus', () => {
-      const fetchServices = async () => {
-        try {
-          setIsLoading(true);
-          const response = await fetchReqServiceByUser();
-          setServices(response.data);
-        } catch {
-          Toast.show({
-            type: 'error',
-            text1: 'Erro ao buscar serviços',
-            text2: 'Tente novamente mais tarde',
-            autoHide: true,
-            visibilityTime: 2000,
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
       fetchServices();
     });
     return a;
-  }, [navigation]);
+  }, [navigation, services]);
 
   if (isLoading) {
     return (
@@ -77,8 +102,11 @@ const Page = () => {
                 descricao={service?.descricao}
                 items={service?.items}
                 servico={service?.servico}
-                isModalVisible={isModalVisible}
-                setIsModalVisible={setModalVisible}
+                isOpenDeleteModal={isOpenDeleteModal === service?.id}
+                setIsOpenDeleteModal={() => setIsOpenDeleteModal(service?.id)}
+                onOpenDeleteModal={() => setIsOpenDeleteModal(service?.id)}
+                onCloseDeleteModal={() => setIsOpenDeleteModal(false)}
+                onDeleteService={() => deleteService(service?.id)}
               />
             ))}
           </YStack>

@@ -13,6 +13,7 @@
   },
   "jest": {
     "preset": "jest-expo",
+    "testEnvironment": "jsdom",
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
     ],
@@ -42,6 +43,7 @@
     "@tamagui/shorthands": "1.74.8",
     "@tamagui/themes": "1.74.8",
     "axios": "^1.6.8",
+    "axios-mock-adapter": "^1.22.0",
     "core-js": "^3.37.1",
     "expo": "^50.0.17",
     "expo-build-properties": "~0.11.1",

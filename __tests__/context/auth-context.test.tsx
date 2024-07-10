@@ -1,41 +1,120 @@
-import { act, render } from '@testing-library/react-native';
+import { act, render, waitFor } from '@testing-library/react';
 import axios from 'axios';
+import AxiosMockAdapter from 'axios-mock-adapter';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from 'jwt-decode';
 import React from 'react';
 import 'core-js/stable/atob';
+
 import { TamaguiProvider } from 'tamagui';
 
-import { AuthProvider, useAuth } from '~/context/auth-context';
+import { AuthContext, AuthProvider, useAuth } from '~/context/auth-context';
 import client from '~/services/client';
 import config from '~/tamagui.config';
 
-jest.mock('axios');
+// Criar um mock para o axios
+const axiosMock = new AxiosMockAdapter(client);
+jest.mock('expo-router', () => ({
+  ...jest.requireActual('expo-router'),
+  replace: jest.fn(),
+}));
 jest.mock('expo-secure-store');
 jest.mock('jwt-decode');
-jest.mock('expo-router', () => ({
-  router: {
-    replace: jest.fn(),
-  },
-}));
-jest.mock('~/services/client', () => ({
-  post: jest.fn(),
-}));
 
-const mockDecodedToken = { name: 'Test User', email: 'test@example.com' };
-(jwtDecode as jest.Mock).mockReturnValue(mockDecodedToken);
+const TestComponent = ({ action }: any) => {
+  const { onRegister, onLogin } = React.useContext(AuthContext);
 
-const TestComponent = () => {
-  const { authState, onRegister, onLogin, onLogout, loading } = useAuth();
-  return null;
+  React.useEffect(() => {
+    action(onRegister, onLogin);
+  }, [action, onRegister, onLogin]);
+
+  return <div />;
 };
 
 describe('AuthContext', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+  afterEach(() => {
+    axiosMock.reset();
+  });
+
+  it('should register a user successfully', async () => {
+    axiosMock.onPost('/user').reply(200, { user: 'testUser', token: 'testToken' });
+
+    const action = async (onRegister: any) => {
+      await act(async () => {
+        const response = await onRegister(
+          'testName',
+          'testEmail',
+          'testPassword',
+          'testCPF',
+          'testPhone'
+        );
+        expect(response.data).toEqual({ user: 'testUser', token: 'testToken' });
+      });
+    };
+
+    render(
+      <AuthProvider>
+        <TamaguiProvider config={config}>
+          <TestComponent action={action} />
+        </TamaguiProvider>
+      </AuthProvider>
+    );
+  });
+
+  it('should handle registration error', async () => {
+    axiosMock.onPost('/user').networkError();
+
+    const action = async (onRegister: any) => {
+      await expect(
+        onRegister('testName', 'testEmail', 'testPassword', 'testCPF', 'testPhone')
+      ).rejects.toThrow();
+    };
+
+    render(
+      <AuthProvider>
+        <TamaguiProvider config={config}>
+          <TestComponent action={action} />
+        </TamaguiProvider>
+      </AuthProvider>
+    );
+  });
+
+  it('should remove token from storage and axios header, and update auth state', async () => {
+    jest.spyOn(router, 'replace').mockResolvedValue();
+    jest.spyOn(SecureStore, 'deleteItemAsync').mockResolvedValue();
+    SecureStore.setItemAsync('token', 'test-token');
+    axios.defaults.headers.common['Authorization'] = 'Bearer test-token';
+
+    const wrapper = ({ children }: any) => (
+      <AuthProvider>
+        <TamaguiProvider config={config}>{children}</TamaguiProvider>
+      </AuthProvider>
+    );
+
+    const result = render(
+      <AuthContext.Consumer>
+        {({ onLogout }) => <button onClick={onLogout}>Logout</button>}
+      </AuthContext.Consumer>,
+      { wrapper }
+    );
+
+    await act(async () => {
+      result.getByText('Logout').click();
+    });
+
+    await waitFor(() => {
+      expect(router.replace).toHaveBeenCalledWith('/');
+      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('token');
+    });
   });
 
   it('loads token on mount', async () => {
+    const TestComponent = () => {
+      const { authState, onRegister, onLogin, onLogout, loading } = useAuth();
+      return null;
+    };
+
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('mockToken');
 
     render(
@@ -51,81 +130,4 @@ describe('AuthContext', () => {
       expect(axios.defaults.headers.common['Authorization']).toBe('Bearer mockToken');
     });
   });
-
-  // it('registers a new user', async () => {
-  //   const mockResponse = { data: 'success' };
-  //   (client.post as jest.Mock).mockResolvedValue(mockResponse);
-  //   let result;
-
-  //   render(
-  //     <AuthProvider>
-  //       <TamaguiProvider config={config}>
-  //         <TestComponent />
-  //       </TamaguiProvider>
-  //     </AuthProvider>
-  //   );
-
-  //   await act(async () => {
-  //     const { onRegister } = useAuth();
-  //     result = await onRegister!(
-  //       'John Doe',
-  //       'john@example.com',
-  //       'password123',
-  //       '12345678909',
-  //       '1234567890'
-  //     );
-  //   });
-
-  //   expect(result).toBe(mockResponse);
-  //   expect(client.post).toHaveBeenCalledWith('/user', {
-  //     name: 'John Doe',
-  //     email: 'john@example.com',
-  //     password: 'password123',
-  //     cpf: '12345678909',
-  //     phone: '1234567890',
-  //   });
-  // });
-
-  // it('logs in a user', async () => {
-  //   const mockResponse = { data: { conteudo: { token: 'mockToken' } } };
-  //   (client.post as jest.Mock).mockResolvedValueOnce(mockResponse);
-
-  //   render(
-  //     <AuthProvider>
-  //       <TamaguiProvider config={config}>
-  //         <TestComponent />
-  //       </TamaguiProvider>
-  //     </AuthProvider>
-  //   );
-
-  //   await act(async () => {
-  //     const { onLogin } = useAuth();
-  //     await onLogin!('john@example.com', 'password123');
-  //   });
-
-  //   expect(jwtDecode).toHaveBeenCalledWith('mockToken');
-  //   expect(SecureStore.setItemAsync).toHaveBeenCalledWith('token', 'mockToken');
-  //   expect(client.defaults.headers.common['Authorization']).toBe('Bearer mockToken');
-  // });
-
-  // it('logs out a user', async () => {
-  //   const mockRouterReplace = require('expo-router').router.replace;
-
-  //   render(
-  //     <AuthProvider>
-  //       <TamaguiProvider config={config}>
-  //         <TestComponent />
-  //       </TamaguiProvider>
-  //     </AuthProvider>
-  //   );
-
-  //   await act(async () => {
-  //     const { onLogout } = useAuth();
-  //     await onLogout!();
-  //   });
-
-  //   expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('token');
-  //   expect(client.defaults.headers.common['Authorization']).toBe('');
-  //   expect(mockRouterReplace).toHaveBeenCalledWith('/');
-  // });
 });
