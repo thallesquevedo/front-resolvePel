@@ -47,7 +47,8 @@ const CardOrderService = ({
         <TouchableOpacity
           onPress={() => {
             setIsOpenDeleteModal(true);
-          }}>
+          }}
+          testID={`delete-button-${id}`}>
           <View backgroundColor="#FB2F54" padding={7} borderRadius="$12">
             <DeleteIcon size={16} />
           </View>

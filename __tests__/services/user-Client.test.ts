@@ -4,6 +4,7 @@ import client from '~/services/client';
 import {
   addView,
   createReqService,
+  deleteServiceById,
   fetchAllOrdemServico,
   fetchClienteOrdemServico,
   fetchItems,
@@ -17,6 +18,7 @@ jest.mock('~/services/client', () => ({
   post: jest.fn(),
   get: jest.fn(),
   patch: jest.fn(),
+  delete: jest.fn(),
 }));
 jest.mock('expo-secure-store');
 
@@ -268,5 +270,38 @@ describe('apiServices', () => {
     await expect(addView()).rejects.toThrow('Add view failed');
 
     expect(client.post).toHaveBeenCalledWith('/analytics');
+  });
+
+  it('should successfully delete a service by ID', async () => {
+    const mockToken = 'mockToken';
+    const mockResponse = { data: {} };
+
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
+    (client.delete as jest.Mock).mockResolvedValue(mockResponse);
+
+    const id = '123';
+    const response = await deleteServiceById(id);
+
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
+    expect(client.delete).toHaveBeenCalledWith(`/req-servico/${id}`, {
+      headers: { Authorization: `Bearer ${mockToken}` },
+    });
+    expect(response).toBe(mockResponse);
+  });
+
+  it('should throw an error when deletion fails', async () => {
+    const mockToken = 'mockToken';
+    const mockError = new Error('Delete service by user failed');
+
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
+    (client.delete as jest.Mock).mockRejectedValue(mockError);
+
+    const id = '123';
+    await expect(deleteServiceById(id)).rejects.toThrow('Delete service by user failed');
+
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
+    expect(client.delete).toHaveBeenCalledWith(`/req-servico/${id}`, {
+      headers: { Authorization: `Bearer ${mockToken}` },
+    });
   });
 });

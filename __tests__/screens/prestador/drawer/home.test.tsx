@@ -1,5 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { useNavigation, useRouter } from 'expo-router';
 import React from 'react';
 import Toast from 'react-native-toast-message';
@@ -7,7 +7,7 @@ import { TamaguiProvider } from 'tamagui';
 
 import Page from '~/app/prestador/(drawer)/home';
 import { useAuth } from '~/context/auth-context';
-import { fetchReqServiceByUser } from '~/services/user-Client';
+import { deleteServiceById, fetchReqServiceByUser } from '~/services/user-Client';
 import config from '~/tamagui.config';
 
 jest.mock('expo-router', () => ({
@@ -21,6 +21,7 @@ jest.mock('~/context/auth-context', () => ({
 
 jest.mock('~/services/user-Client', () => ({
   fetchReqServiceByUser: jest.fn(),
+  deleteServiceById: jest.fn(),
 }));
 
 jest.mock('react-native-toast-message', () => ({
@@ -109,6 +110,28 @@ describe('Page Screen', () => {
     });
   });
 
+  it('navigate to create service if there are services', async () => {
+    const services = {
+      id: 1,
+      descricao: 'Ordem de servico 1',
+      items: ['item 1', 'item 2'],
+      servico: { name: 'Servico 2', id: 2 },
+    };
+    (fetchReqServiceByUser as jest.Mock).mockResolvedValueOnce({ data: [services] });
+
+    const { getByText } = render(
+      <NavigationContainer>
+        <Page />
+      </NavigationContainer>
+    );
+
+    await waitFor(() => {
+      fireEvent.press(getByText('+ Criar serviço'));
+    });
+
+    expect(mockRouter.push).toHaveBeenCalledWith('/prestador/(drawer)/criar-servico');
+  });
+
   it('should navigate to create service screen on button press', async () => {
     (fetchReqServiceByUser as jest.Mock).mockResolvedValueOnce({ data: [] });
 
@@ -138,6 +161,87 @@ describe('Page Screen', () => {
       expect(Toast.show).toHaveBeenCalledWith({
         type: 'error',
         text1: 'Erro ao buscar serviços',
+        text2: 'Tente novamente mais tarde',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+    });
+  });
+
+  it('should delete service and show success toast', async () => {
+    const serviceToDelete = {
+      id: 1,
+      descricao: 'Ordem de servico 1',
+      items: ['item 1', 'item 2'],
+      servico: { name: 'Servico 2', id: 2 },
+    };
+
+    (fetchReqServiceByUser as jest.Mock).mockResolvedValueOnce({ data: [serviceToDelete] });
+    (deleteServiceById as jest.Mock).mockResolvedValueOnce({});
+
+    const { getByText, getByTestId } = render(
+      <NavigationContainer>
+        <Page />
+      </NavigationContainer>
+    );
+
+    await waitFor(() => {
+      expect(getByText('Ordem de servico 1')).toBeTruthy();
+    });
+
+    await act(async () => {
+      fireEvent.press(getByTestId(`delete-button-${serviceToDelete.id}`));
+    });
+
+    await act(async () => {
+      fireEvent.press(getByText('Excluir serviço'));
+    });
+
+    await waitFor(() => {
+      expect(deleteServiceById).toHaveBeenCalledWith(serviceToDelete.id.toString());
+      expect(Toast.show).toHaveBeenCalledWith({
+        type: 'success',
+        text1: 'Serviço deletado com sucesso',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+    });
+  });
+
+  it('should show error toast if delete service fails', async () => {
+    const serviceToDelete = {
+      id: 1,
+      descricao: 'Ordem de servico 1',
+      items: ['item 1', 'item 2'],
+      servico: { name: 'Servico 2', id: 2 },
+    };
+
+    (fetchReqServiceByUser as jest.Mock).mockResolvedValueOnce({ data: [serviceToDelete] });
+    (deleteServiceById as jest.Mock).mockRejectedValueOnce(new Error('Failed to delete'));
+
+    const { getByText, getByTestId } = render(
+      <NavigationContainer>
+        <Page />
+      </NavigationContainer>
+    );
+
+    await waitFor(() => {
+      expect(getByText('Ordem de servico 1')).toBeTruthy();
+    });
+
+    await act(async () => {
+      fireEvent.press(getByTestId(`delete-button-${serviceToDelete.id}`));
+    });
+
+    await act(async () => {
+      fireEvent.press(getByText('Excluir serviço'));
+    });
+
+    await waitFor(() => {
+      expect(deleteServiceById).toHaveBeenCalledWith(serviceToDelete.id.toString());
+      expect(Toast.show).toHaveBeenCalledWith({
+        type: 'error',
+        text1: 'Erro ao deletar serviço',
         text2: 'Tente novamente mais tarde',
         autoHide: true,
         visibilityTime: 2000,

@@ -13,7 +13,6 @@ import { AuthContext, AuthProvider, useAuth } from '~/context/auth-context';
 import client from '~/services/client';
 import config from '~/tamagui.config';
 
-// Criar um mock para o axios
 const axiosMock = new AxiosMockAdapter(client);
 jest.mock('expo-router', () => ({
   ...jest.requireActual('expo-router'),
@@ -33,6 +32,9 @@ const TestComponent = ({ action }: any) => {
 };
 
 describe('AuthContext', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   afterEach(() => {
     axiosMock.reset();
   });

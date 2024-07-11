@@ -18,7 +18,7 @@ const Page = () => {
 
   const deleteService = async (id: number) => {
     try {
-      const response = await deleteServiceById(id.toString());
+      await deleteServiceById(id.toString());
       Toast.show({
         type: 'success',
         text1: 'Serviço deletado com sucesso',

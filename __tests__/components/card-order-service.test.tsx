@@ -24,7 +24,11 @@ describe('CardOrderService', () => {
       id: 1,
       created_at: new Date(),
     },
-    setIsModalVisible: jest.fn(),
+    isOpenDeleteModal: false,
+    setIsOpenDeleteModal: jest.fn(),
+    onOpenDeleteModal: jest.fn(),
+    onCloseDeleteModal: jest.fn(),
+    onDeleteService: jest.fn(),
   };
 
   const mockComponent = (
@@ -46,9 +50,4 @@ describe('CardOrderService', () => {
     fireEvent.press(getByTestId('navigate-to-edit-service'));
     expect(router.push).toHaveBeenCalledWith('/prestador/(drawer)/editar-servico/1');
   });
-
-  // it('handles delete button press', () => {
-  //   const { getByTestId } = render(<CardOrderService {...mockData} />);
-  //   fireEvent.press(getByTestId('delete-button'));
-  // });
 });
