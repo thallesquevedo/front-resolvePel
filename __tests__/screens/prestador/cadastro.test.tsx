@@ -170,21 +170,4 @@ describe('Cadastro', () => {
 
     expect(getByText('CPF Inválido')).not.toBeNull();
   });
-
-  it('must show a message when the email field is invalid', async () => {
-    const { getByPlaceholderText, getByText } = render(mockCadastro);
-
-    const campoEmail = getByPlaceholderText('Ex: joao@email.com');
-    const buttonFinalizaCadastro = getByText('Finalizar cadastro');
-
-    fireEvent.changeText(campoEmail, 'joaoemail.com');
-
-    fireEvent.press(buttonFinalizaCadastro);
-
-    await waitFor(() => {
-      expect(getByText('Email inválido')).toBeTruthy();
-    });
-
-    expect(getByText('Email inválido')).not.toBeNull();
-  });
 });

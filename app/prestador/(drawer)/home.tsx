@@ -24,6 +24,8 @@ const Page = () => {
         text1: 'Serviço deletado com sucesso',
         autoHide: true,
         visibilityTime: 2000,
+        position: 'bottom',
+        text1Style: { fontSize: 18 },
       });
       setIsOpenDeleteModal(false);
       fetchServices();
@@ -34,6 +36,8 @@ const Page = () => {
         text2: 'Tente novamente mais tarde',
         autoHide: true,
         visibilityTime: 2000,
+        position: 'bottom',
+        text1Style: { fontSize: 18 },
       });
       setIsOpenDeleteModal(false);
       fetchServices();

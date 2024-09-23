@@ -1,5 +1,5 @@
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
@@ -11,6 +11,7 @@ const ClienteOrdemServicoPage = () => {
   const { id } = useLocalSearchParams();
   const [ordemServico, setOrdemServico] = useState<any>({});
   const [showPrestadorInfo, setShowPrestadorInfo] = useState(false);
+  const [uriImagePath, setUriImagePath] = useState();
 
   const onOpenWpp = () => {
     const phoneNumber = ordemServico?.user?.phone;
@@ -40,6 +41,8 @@ const ClienteOrdemServicoPage = () => {
         try {
           const response = await fetchClienteOrdemServico(id as string);
           setOrdemServico(response.data);
+          const name = selectImage(response.data.servico.name);
+          setUriImagePath(name);
         } catch {
           Toast.show({
             type: 'error',
@@ -55,9 +58,27 @@ const ClienteOrdemServicoPage = () => {
     }, [])
   );
 
+  // useEffect(
+  //   const name = selectImage(ordemServico?.servico.name);
+  //   setUriImagePath(name);
+  // }, []);
+
+  const imageMap: { [key: string]: any } = {
+    'Instalação/Desinstalação': require('~/assets/servico-instalacao.png'),
+    'Montagem/Desmontagem': require('~/assets/servico-montagem.png'),
+    'Reparos/Pinturas': require('~/assets/servico-reparos.png'),
+    'Serviços Gerais': require('~/assets/servico-geral.png'),
+    'Serviços de encanamento': require('~/assets/instalacao.png'),
+    'Serviçoes de elétrica': require('~/assets/servico-eletrico.png'),
+  };
+
+  const selectImage = (serviceName: string) => {
+    return imageMap[serviceName] || require('~/assets/servico-geral.png');
+  };
+
   return (
     <ScrollView>
-      <Image source={{ uri: require('~/assets/instalacao.png') }} width="100%" height={214} />
+      <Image source={{ uri: uriImagePath }} width="100%" height={214} />
       <YStack padding={20} gap={20}>
         <YStack gap={8}>
           <Text fontWeight="600" fontSize={18}>

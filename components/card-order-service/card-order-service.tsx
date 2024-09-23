@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 import { Button, Image, Text, View, XStack, YStack } from 'tamagui';
@@ -34,6 +34,26 @@ const CardOrderService = ({
   onCloseDeleteModal,
   onDeleteService,
 }: ICardService) => {
+  const [uriImagePath, setUriImagePath] = useState();
+
+  useEffect(() => {
+    const name = selectImage(servico?.name);
+    setUriImagePath(name);
+  }, []);
+
+  const imageMap: { [key: string]: any } = {
+    'Instalação/Desinstalação': require('~/assets/servico-instalacao.png'),
+    'Montagem/Desmontagem': require('~/assets/servico-montagem.png'),
+    'Reparos/Pinturas': require('~/assets/servico-reparos.png'),
+    'Serviços Gerais': require('~/assets/servico-geral.png'),
+    'Serviços de encanamento': require('~/assets/instalacao.png'),
+    'Serviçoes de elétrica': require('~/assets/servico-eletrico.png'),
+  };
+
+  const selectImage = (serviceName: string) => {
+    return imageMap[serviceName];
+  };
+
   return (
     <YStack height={377} borderColor="#6D6D6D" borderWidth={1} borderRadius={14} overflow="hidden">
       <XStack zIndex={1} position="absolute" top={15} right={15} gap={10}>
@@ -54,7 +74,7 @@ const CardOrderService = ({
           </View>
         </TouchableOpacity>
       </XStack>
-      <Image source={{ uri: require('~/assets/instalacao.png') }} width="100%" height={214} />
+      <Image source={{ uri: uriImagePath }} width="100%" height={214} />
       <YStack padding={15} gap={11} flex={1} justifyContent="space-between">
         <YStack gap={11}>
           <Text fontWeight="500" fontSize={16} testID="service-name-title">

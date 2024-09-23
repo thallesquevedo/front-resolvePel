@@ -265,7 +265,7 @@ const Cadastro = () => {
           </YStack>
           <YStack gap={20}>
             <Text fontSize={16} textAlign="center" color="#464646">
-              Não possui conta?{' '}
+              Já possui conta?{' '}
               <Link
                 style={{ color: '#54187E', textDecorationLine: 'underline', fontWeight: '600' }}
                 href="/prestador/login">
