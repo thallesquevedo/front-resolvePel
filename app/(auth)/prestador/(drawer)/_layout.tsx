@@ -47,6 +47,12 @@ export default function Layout() {
           drawerLabel: 'Criar serviço',
         }}
       />
+      <Drawer.Screen
+        name="editar-perfil"
+        options={{
+          drawerLabel: 'Editar perfil',
+        }}
+      />
     </Drawer>
   );
 }

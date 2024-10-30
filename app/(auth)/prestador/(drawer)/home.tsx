@@ -93,7 +93,7 @@ const Page = () => {
             pressStyle={{ backgroundColor: '#440F69' }}
             backgroundColor="#54187E"
             onPress={() => {
-              router.push('/prestador/(drawer)/criar-servico');
+              router.push('/(auth)/prestador/(drawer)/criar-servico');
             }}
             fontSize={16}>
             + Criar serviço
@@ -135,7 +135,7 @@ const Page = () => {
             pressStyle={{ backgroundColor: '#440F69' }}
             backgroundColor="#54187E"
             onPress={() => {
-              router.push('/prestador/(drawer)/criar-servico');
+              router.push('/(auth)/prestador/(drawer)/criar-servico');
             }}
             fontSize={16}>
             + Criar serviço

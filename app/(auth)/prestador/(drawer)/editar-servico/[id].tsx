@@ -3,7 +3,7 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { ActivityIndicator } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
+import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import Toast from 'react-native-toast-message';
 import { Button, ScrollView, Text, TextArea, XStack, YStack } from 'tamagui';
 import * as yup from 'yup';
@@ -36,17 +36,16 @@ const AtualizarServicoPage = () => {
     control,
     formState: { errors },
     setValue,
+    clearErrors,
   } = useForm<IUpdateServiceInputs>({
     mode: 'onBlur',
     resolver: yupResolver(formCreateServiceSchema),
   });
-  const [openItemDropdown, setOpenItemDropdown] = useState(false); // estado do dropdown do item
   const [itemsLista, setItemsLista] = useState<any[]>([]); // lista de itens do back
-  const [itemsSelecionados, setItemsSelecionados] = useState([]); // valor do dropdown do item
+  const [itemsSelecionados, setItemsSelecionados] = useState<string[]>([]); // valor do dropdown do item
 
-  const [openServicoDropdown, setOpenServicoDropdown] = useState(false); // estado do dropdown do servico
   const [servicosLista, setServicosLista] = useState<any[]>([]); // lista de serviços do back
-  const [valueServicoSelecionado, setValueServicoSelecionado] = useState(null); // valor do dropdown do servico
+  const [valueServicoSelecionado, setValueServicoSelecionado] = useState(''); // valor do dropdown do servico
 
   const [loading, setLoading] = useState(true); // estado de carregamento
   const { id } = useLocalSearchParams();
@@ -70,6 +69,11 @@ const AtualizarServicoPage = () => {
           setValueServicoSelecionado(servicosFromOrdemServico.id);
           setItemsSelecionados(itemsFromOrdemServico.map((item: any) => item.id));
           setValue('descricao', descricaoFromOrdemServico);
+          setValue(
+            'itemIds',
+            itemsFromOrdemServico.map((item: any) => item.id)
+          );
+          setValue('servicoId', servicosFromOrdemServico.id);
         } catch (error) {
           console.log(error);
         } finally {
@@ -77,9 +81,27 @@ const AtualizarServicoPage = () => {
         }
       };
       fetchData();
-      return () => fetchData();
+      return () => {
+        fetchData();
+        clearErrors();
+      };
     }, [id])
   );
+
+  const getSelectedItemsNames = () => {
+    const selectedItems = itemsSelecionados
+      .map((itemId) => {
+        const item = itemsLista.find((item) => item.id === itemId);
+        return item ? item.name : '';
+      })
+      .filter((name) => name !== '');
+
+    if (selectedItems.length > 3) {
+      return `${selectedItems.length} items selecionados`;
+    }
+
+    return selectedItems.join(', ');
+  };
 
   const onSubmit: SubmitHandler<IUpdateServiceInputs> = async (data) => {
     const transformData = {
@@ -87,6 +109,7 @@ const AtualizarServicoPage = () => {
       itemIds: data.itemIds,
       descricao: data.descricao,
     };
+    console.log(transformData);
     try {
       const response = await updateReqService(id as string, transformData);
       setTimeout(() => {
@@ -105,14 +128,6 @@ const AtualizarServicoPage = () => {
       console.log(error);
     }
   };
-
-  const onServicoOpen = useCallback(() => {
-    setOpenItemDropdown(false);
-  }, []);
-
-  const onItemOpen = useCallback(() => {
-    setOpenServicoDropdown(false);
-  }, []);
 
   if (loading) {
     return (
@@ -140,33 +155,40 @@ const AtualizarServicoPage = () => {
           control={control}
           name="servicoId"
           render={({ field: { onChange, value, onBlur } }) => (
-            <DropDownPicker
-              schema={{ label: 'name', value: 'id' }}
-              open={openServicoDropdown}
+            <Dropdown
+              data={servicosLista}
+              placeholder="Selecione uma atividade"
+              style={{
+                borderWidth: 1,
+                borderColor: '#C5C5C5',
+                borderRadius: 5,
+                height: 44,
+                paddingHorizontal: 12,
+              }}
+              containerStyle={{
+                maxHeight: 300,
+                borderWidth: 1,
+                borderColor: '#C5C5C5',
+                borderRadius: 5,
+              }}
+              labelField="name"
+              valueField="id"
               value={valueServicoSelecionado}
-              items={servicosLista}
-              setOpen={(isOpen) => {
-                setOpenServicoDropdown(isOpen);
-                if (!isOpen) onBlur();
+              onChange={(value) => {
+                setValueServicoSelecionado(value.id);
+                onChange(value.id);
               }}
-              setValue={setValueServicoSelecionado}
-              setItems={setServicosLista}
-              mode="BADGE"
-              listMode="SCROLLVIEW"
-              multiple={false}
-              showBadgeDot={false}
-              placeholder="Selecione uma ou mais atividades"
-              TickIconComponent={() => <CheckedIcon />}
-              style={{ borderColor: '#C5C5C5' }}
-              dropDownContainerStyle={{ borderTopWidth: 0, borderColor: '#C5C5C5' }}
-              listItemContainerStyle={{ height: 25 }}
-              selectedItemContainerStyle={{
-                backgroundColor: 'rgba(84, 24, 126, 0.1)',
-                marginVertical: 6,
+              renderItem={(item) => {
+                return (
+                  <XStack
+                    justifyContent="space-between"
+                    paddingHorizontal={10}
+                    paddingVertical={10}>
+                    <Text fontSize={16}>{item.name}</Text>
+                    {item.id === valueServicoSelecionado && <CheckedIcon />}
+                  </XStack>
+                );
               }}
-              zIndex={9999}
-              onChangeValue={(value) => onChange(value)}
-              onOpen={onServicoOpen}
             />
           )}
         />
@@ -184,34 +206,30 @@ const AtualizarServicoPage = () => {
           control={control}
           name="itemIds"
           render={({ field: { onChange, value, onBlur } }) => (
-            <DropDownPicker
-              schema={{ label: 'name', value: 'id' }}
-              open={openItemDropdown}
+            <MultiSelect
+              data={itemsLista}
+              placeholder={getSelectedItemsNames() || 'Selecione um ou mais items'}
+              style={{
+                borderWidth: 1,
+                borderColor: '#C5C5C5',
+                borderRadius: 5,
+                height: 44,
+                paddingHorizontal: 12,
+              }}
+              containerStyle={{
+                height: 300,
+                borderWidth: 1,
+                borderColor: '#C5C5C5',
+                borderRadius: 5,
+              }}
+              labelField="name"
+              valueField="id"
               value={itemsSelecionados}
-              items={itemsLista}
-              setOpen={(isOpen) => {
-                setOpenItemDropdown(isOpen);
-                if (!isOpen) onBlur();
+              onChange={(value) => {
+                setItemsSelecionados(value);
+                onChange(value);
               }}
-              setValue={setItemsSelecionados}
-              setItems={setItemsLista}
-              multiple
-              listMode="SCROLLVIEW"
-              mode="BADGE"
-              showBadgeDot={false}
-              badgeColors={['rgba(84, 24, 126, 0.1)']}
-              placeholder="Selecione uma ou mais atividades"
-              TickIconComponent={() => <CheckedIcon />}
-              style={{ borderColor: '#C5C5C5' }}
-              dropDownContainerStyle={{ borderTopWidth: 0, borderColor: '#C5C5C5' }}
-              listItemContainerStyle={{ height: 25 }}
-              selectedItemContainerStyle={{
-                backgroundColor: 'rgba(84, 24, 126, 0.1)',
-                marginVertical: 6,
-              }}
-              zIndex={5555}
-              onChangeValue={(value) => onChange(value)}
-              onOpen={onItemOpen}
+              visibleSelectedItem
             />
           )}
         />

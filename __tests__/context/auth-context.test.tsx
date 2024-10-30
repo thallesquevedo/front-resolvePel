@@ -1,12 +1,10 @@
 import { act, render, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
+import 'core-js/stable/atob';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { jwtDecode } from 'jwt-decode';
 import React from 'react';
-import 'core-js/stable/atob';
-
 import { TamaguiProvider } from 'tamagui';
 
 import { AuthContext, AuthProvider, useAuth } from '~/context/auth-context';

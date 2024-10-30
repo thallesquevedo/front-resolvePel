@@ -56,7 +56,7 @@ const Cadastro = () => {
   const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
     try {
       await onRegister!(data.name, data.email, data.password, data.cpf, '+55' + data.phone);
-      router.replace('./login');
+      router.replace('/');
     } catch (error: any) {
       Toast.show({
         type: 'error',
@@ -268,7 +268,7 @@ const Cadastro = () => {
               Já possui conta?{' '}
               <Link
                 style={{ color: '#54187E', textDecorationLine: 'underline', fontWeight: '600' }}
-                href="/prestador/login">
+                href="/">
                 Clique aqui
               </Link>
             </Text>

@@ -2,7 +2,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { TamaguiProvider } from 'tamagui';
 
-import Home from '../../app/index';
+import Home from '../../app/(auth)/index';
 
 import config from '~/tamagui.config';
 

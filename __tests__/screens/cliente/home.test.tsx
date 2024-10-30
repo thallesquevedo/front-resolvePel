@@ -4,7 +4,7 @@ import React from 'react';
 import Toast from 'react-native-toast-message';
 import { TamaguiProvider } from 'tamagui';
 
-import ClienteHome from '~/app/cliente/home';
+import ClienteHome from '~/app/(auth)/cliente/home';
 import { fetchAllOrdemServico } from '~/services/user-Client';
 import config from '~/tamagui.config';
 

@@ -97,3 +97,23 @@ export const deleteServiceById = async (id: string) => {
     throw error;
   }
 };
+
+export const getUserInfos = async () => {
+  try {
+    const token = await SecureStore.getItemAsync('token');
+    return await client.get('/user/me', { headers: { Authorization: `Bearer ${token}` } });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateUserInfos = async (data: any) => {
+  try {
+    const token = await SecureStore.getItemAsync('token');
+    return await client.patch(`/user/me`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    throw error;
+  }
+};

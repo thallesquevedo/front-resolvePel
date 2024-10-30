@@ -5,7 +5,7 @@ import { Linking } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { TamaguiProvider } from 'tamagui';
 
-import ClienteOrdemServicoPage from '~/app/cliente/[id]';
+import ClienteOrdemServicoPage from '~/app/(auth)/cliente/[id]';
 import { fetchClienteOrdemServico, addView } from '~/services/user-Client';
 import config from '~/tamagui.config';
 

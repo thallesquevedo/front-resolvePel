@@ -199,6 +199,9 @@ describe('Page Screen', () => {
 
     await waitFor(() => {
       expect(deleteServiceById).toHaveBeenCalledWith(serviceToDelete.id.toString());
+    });
+
+    await waitFor(() => {
       expect(Toast.show).toHaveBeenCalledWith({
         type: 'success',
         text1: 'Serviço deletado com sucesso',
