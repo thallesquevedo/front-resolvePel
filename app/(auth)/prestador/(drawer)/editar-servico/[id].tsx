@@ -109,7 +109,6 @@ const AtualizarServicoPage = () => {
       itemIds: data.itemIds,
       descricao: data.descricao,
     };
-    console.log(transformData);
     try {
       const response = await updateReqService(id as string, transformData);
       setTimeout(() => {
@@ -209,6 +208,7 @@ const AtualizarServicoPage = () => {
             <MultiSelect
               data={itemsLista}
               placeholder={getSelectedItemsNames() || 'Selecione um ou mais items'}
+              visibleSelectedItem={false}
               style={{
                 borderWidth: 1,
                 borderColor: '#C5C5C5',
@@ -229,7 +229,6 @@ const AtualizarServicoPage = () => {
                 setItemsSelecionados(value);
                 onChange(value);
               }}
-              visibleSelectedItem
             />
           )}
         />

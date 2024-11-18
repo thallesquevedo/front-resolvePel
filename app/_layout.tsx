@@ -26,7 +26,6 @@ export default function Layout() {
     const { authState } = useAuth();
 
     useEffect(() => {
-      console.log(authState);
       if (authState?.authenticated) {
         router.replace('./(auth)/');
       }

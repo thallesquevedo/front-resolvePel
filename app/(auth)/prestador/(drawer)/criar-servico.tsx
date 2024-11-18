@@ -78,7 +78,6 @@ const CriarServicoPage = () => {
       itemIds: data.itemIds,
       descricao: data.descricao,
     };
-    console.log(transformData);
     try {
       const response = await createReqService(transformData);
       setTimeout(() => {
@@ -261,7 +260,7 @@ const CriarServicoPage = () => {
             Finalizar cadastro
           </Button>
           <Button
-            onPress={() => router.back()}
+            onPress={() => router.navigate('/(auth)/prestador/(drawer)/home')}
             borderColor="#54187E"
             pressStyle={{ backgroundColor: '#440F69' }}
             style={{

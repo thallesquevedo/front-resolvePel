@@ -44,8 +44,8 @@ const Login = () => {
   };
 
   return (
-    <YStack backgroundColor="white" flex={1} justifyContent="space-between">
-      <ScrollView>
+    <YStack backgroundColor="white" flex={1} justifyContent="space-between" minHeight="100%">
+      <ScrollView overflow="visible" minHeight="100%">
         <YStack justifyContent="space-between" minHeight="100%">
           <YStack>
             <View

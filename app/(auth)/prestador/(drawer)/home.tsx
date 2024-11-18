@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { Button, Image, ScrollView, Text, XStack, YStack } from 'tamagui';
 
 import CardOrderService from '~/components/card-order-service/card-order-service';
+import Pagination from '~/components/pagination/pagination';
 import { useAuth } from '~/context/auth-context';
 import { deleteServiceById, fetchReqServiceByUser } from '~/services/user-Client';
 
@@ -15,6 +16,8 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [services, setServices] = useState([]);
   const navigation = useNavigation();
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const deleteService = async (id: number) => {
     try {
@@ -44,12 +47,14 @@ const Page = () => {
     }
   };
 
-  const fetchServices = async () => {
+  const fetchServices = async (currentPage: number) => {
     try {
       setIsLoading(true);
-      const response = await fetchReqServiceByUser();
-      setServices(response.data);
-    } catch {
+      const response = await fetchReqServiceByUser(currentPage);
+      setServices(response.data.data);
+      setTotalPages(Math.ceil(response.data.count / 5));
+    } catch (error) {
+      console.log(error);
       Toast.show({
         type: 'error',
         text1: 'Erro ao buscar serviços',
@@ -62,12 +67,18 @@ const Page = () => {
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchServices(newPage);
+  };
+
   useEffect(() => {
     const a = navigation.addListener('focus', () => {
-      fetchServices();
+      setPage(1);
+      fetchServices(1);
     });
     return a;
-  }, [navigation, services]);
+  }, [navigation, services, page]);
 
   if (isLoading) {
     return (
@@ -87,7 +98,7 @@ const Page = () => {
           Veja abaixo todos os seus serviços
         </Text>
       </YStack>
-      {services?.length !== 0 ? (
+      {services.length !== 0 ? (
         <YStack gap={20} marginBottom={45}>
           <Button
             pressStyle={{ backgroundColor: '#440F69' }}
@@ -114,6 +125,7 @@ const Page = () => {
               />
             ))}
           </YStack>
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
         </YStack>
       ) : (
         <YStack alignItems="center" gap={20}>

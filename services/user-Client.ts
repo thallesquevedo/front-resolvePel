@@ -1,4 +1,3 @@
-import { Try } from 'expo-router/build/views/Try';
 import * as SecureStore from 'expo-secure-store';
 
 import client from './client';
@@ -21,10 +20,16 @@ export const fetchServices = async () => {
   }
 };
 
-export const fetchReqServiceByUser = async () => {
+export const fetchReqServiceByUser = async (skip?: number, limit?: number) => {
   try {
     const token = await SecureStore.getItemAsync('token');
-    return await client.get('/req-servico', { headers: { Authorization: `Bearer ${token}` } });
+    return await client.get('/req-servico/', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: {
+        skip,
+        limit,
+      },
+    });
   } catch (error) {
     throw error;
   }
@@ -63,9 +68,16 @@ export const updateReqService = async (id: string, data: any) => {
   }
 };
 
-export const fetchAllOrdemServico = async () => {
+export const fetchAllOrdemServico = async (skip: number, search?: string) => {
   try {
-    return await client.get('/req-servico/cliente/all');
+    const token = await SecureStore.getItemAsync('token');
+    return await client.get('/req-servico/cliente/all', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: {
+        skip,
+        search,
+      },
+    });
   } catch (error) {
     throw error;
   }
@@ -73,7 +85,10 @@ export const fetchAllOrdemServico = async () => {
 
 export const fetchClienteOrdemServico = async (id: string) => {
   try {
-    return await client.get(`/req-servico/cliente/${id}`);
+    const token = await SecureStore.getItemAsync('token');
+    return await client.get(`/req-servico/cliente/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
   } catch (error) {
     throw error;
   }

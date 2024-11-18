@@ -28,7 +28,7 @@ const CardOrderService = ({ id, descricao, items, servico }: ICardService) => {
     'Reparos/Pinturas': require('~/assets/servico-reparos.png'),
     'Serviços Gerais': require('~/assets/servico-geral.png'),
     'Serviços de encanamento': require('~/assets/instalacao.png'),
-    'Serviçoes de elétrica': require('~/assets/servico-eletrico.png'),
+    'Serviços de elétrica': require('~/assets/servico-eletrico.png'),
   };
 
   const selectImage = (serviceName: string) => {
