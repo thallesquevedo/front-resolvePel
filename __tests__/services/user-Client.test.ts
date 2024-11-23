@@ -91,11 +91,14 @@ describe('apiServices', () => {
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
     (client.get as jest.Mock).mockResolvedValue(mockResponse);
 
-    const response = await fetchReqServiceByUser();
+    const skip = 0;
+    const limit = 10;
+    const response = await fetchReqServiceByUser(skip, limit);
 
     expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
-    expect(client.get).toHaveBeenCalledWith('/req-servico', {
+    expect(client.get).toHaveBeenCalledWith('/req-servico/', {
       headers: { Authorization: `Bearer ${mockToken}` },
+      params: { skip, limit },
     });
     expect(response).toBe(mockResponse);
   });
@@ -106,11 +109,16 @@ describe('apiServices', () => {
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
     (client.get as jest.Mock).mockRejectedValue(mockError);
 
-    await expect(fetchReqServiceByUser()).rejects.toThrow('Fetch request service by user failed');
+    const skip = 0;
+    const limit = 10;
+    await expect(fetchReqServiceByUser(skip, limit)).rejects.toThrow(
+      'Fetch request service by user failed'
+    );
 
     expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
-    expect(client.get).toHaveBeenCalledWith('/req-servico', {
+    expect(client.get).toHaveBeenCalledWith('/req-servico/', {
       headers: { Authorization: `Bearer ${mockToken}` },
+      params: { skip, limit },
     });
   });
 
@@ -212,45 +220,73 @@ describe('apiServices', () => {
   });
 
   it('fetches all ordem servico', async () => {
+    const mockToken = 'mockToken';
     const mockResponse = { data: [] };
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
     (client.get as jest.Mock).mockResolvedValue(mockResponse);
 
-    const response = await fetchAllOrdemServico();
+    const skip = 0;
+    const search = 'test';
+    const response = await fetchAllOrdemServico(skip, search);
 
-    expect(client.get).toHaveBeenCalledWith('/req-servico/cliente/all');
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
+    expect(client.get).toHaveBeenCalledWith('/req-servico/cliente/all', {
+      headers: { Authorization: `Bearer ${mockToken}` },
+      params: { skip, search },
+    });
     expect(response).toBe(mockResponse);
   });
 
   it('fetches all ordem servico and handles error', async () => {
+    const mockToken = 'mockToken';
     const mockError = new Error('Fetch all ordem servico failed');
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
     (client.get as jest.Mock).mockRejectedValue(mockError);
-
-    await expect(fetchAllOrdemServico()).rejects.toThrow('Fetch all ordem servico failed');
-
-    expect(client.get).toHaveBeenCalledWith('/req-servico/cliente/all');
+  
+    const skip = 0;
+    const search = 'test';
+    await expect(fetchAllOrdemServico(skip, search)).rejects.toThrow(
+      'Fetch all ordem servico failed'
+    );
+  
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
+    expect(client.get).toHaveBeenCalledWith('/req-servico/cliente/all', {
+      headers: { Authorization: `Bearer ${mockToken}` },
+      params: { skip, search },
+    });
   });
 
   it('fetches cliente ordem servico', async () => {
+    const mockToken = 'mockToken';
     const mockResponse = { data: {} };
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
     (client.get as jest.Mock).mockResolvedValue(mockResponse);
-
+  
     const id = '123';
     const response = await fetchClienteOrdemServico(id);
-
-    expect(client.get).toHaveBeenCalledWith(`/req-servico/cliente/${id}`);
+  
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
+    expect(client.get).toHaveBeenCalledWith(`/req-servico/cliente/${id}`, {
+      headers: { Authorization: `Bearer ${mockToken}` },
+    });
     expect(response).toBe(mockResponse);
   });
 
   it('fetches cliente ordem servico and handles error', async () => {
+    const mockToken = 'mockToken';
     const mockError = new Error('Fetch cliente ordem servico failed');
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(mockToken);
     (client.get as jest.Mock).mockRejectedValue(mockError);
-
+  
     const id = '123';
     await expect(fetchClienteOrdemServico(id)).rejects.toThrow(
       'Fetch cliente ordem servico failed'
     );
-
-    expect(client.get).toHaveBeenCalledWith(`/req-servico/cliente/${id}`);
+  
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith('token');
+    expect(client.get).toHaveBeenCalledWith(`/req-servico/cliente/${id}`, {
+      headers: { Authorization: `Bearer ${mockToken}` },
+    });
   });
 
   it('adds view', async () => {

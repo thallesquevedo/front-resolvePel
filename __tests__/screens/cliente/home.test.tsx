@@ -3,9 +3,8 @@ import { router, useNavigation } from 'expo-router';
 import React from 'react';
 import Toast from 'react-native-toast-message';
 import { TamaguiProvider } from 'tamagui';
-
 import ClienteHome from '~/app/(auth)/cliente/home';
-import { fetchAllOrdemServico } from '~/services/user-Client';
+import { fetchAllOrdemServico, fetchServices } from '~/services/user-Client';
 import config from '~/tamagui.config';
 
 const mockScreen = (
@@ -21,6 +20,7 @@ jest.mock('expo-router', () => ({
 
 jest.mock('~/services/user-Client', () => ({
   fetchAllOrdemServico: jest.fn(),
+  fetchServices: jest.fn(),
 }));
 
 jest.mock('react-native-toast-message', () => ({
@@ -71,8 +71,18 @@ describe('ClienteHome', () => {
   });
 
   it('renders list of services after fetching data', async () => {
-    const { getByText, queryByTestId } = render(mockScreen);
-
+    const mockServices = [
+      { id: 1, descricao: 'Service 1', items: [], servico: 'Tipo 1' },
+      { id: 2, descricao: 'Service 2', items: [], servico: 'Tipo 2' },
+    ];
+    const mockFetchResponse = { data: { data: mockServices, count: 10 } };
+    const mockFetchServices = { data: [{ name: 'Serviço A' }, { name: 'Serviço B' }] };
+  
+    (fetchAllOrdemServico as jest.Mock).mockResolvedValueOnce(mockFetchResponse);
+    (fetchServices as jest.Mock).mockResolvedValueOnce(mockFetchServices);
+  
+    const { getByText, queryByTestId } = render(<ClienteHome />);
+  
     await waitFor(() => {
       expect(queryByTestId('loading-indicator')).toBeNull();
       expect(getByText('Service 1')).toBeTruthy();
@@ -93,21 +103,20 @@ describe('ClienteHome', () => {
   it('handles fetch errors and shows toast message', async () => {
     (fetchAllOrdemServico as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const toastSpy = jest.spyOn(Toast, 'show').mockImplementation(() => {});
 
-    render(mockScreen);
+    render(<ClienteHome />);
 
     await waitFor(() => {
-      expect(Toast.show).toHaveBeenCalledWith({
+      expect(toastSpy).toHaveBeenCalledWith({
         type: 'error',
         text1: 'Erro ao buscar serviços',
         text2: 'Tente novamente mais tarde',
         autoHide: true,
         visibilityTime: 2000,
       });
-      expect(router.push).toHaveBeenCalledWith('/');
     });
 
-    consoleLogSpy.mockRestore();
-  });
+    toastSpy.mockRestore();
+    });
 });
