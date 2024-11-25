@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { TamaguiProvider } from 'tamagui';
 
-import Cadastro from '~/app/prestador/cadastro';
+import Cadastro from '~/app/cadastro';
 import config from '~/tamagui.config';
 
 describe('Cadastro', () => {
@@ -170,4 +170,5 @@ describe('Cadastro', () => {
 
     expect(getByText('CPF Inválido')).not.toBeNull();
   });
+  
 });

@@ -4,6 +4,7 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import 'core-js/stable/atob';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { jwtDecode } from 'jwt-decode';
 import React from 'react';
 import { TamaguiProvider } from 'tamagui';
 
@@ -130,4 +131,5 @@ describe('AuthContext', () => {
       expect(axios.defaults.headers.common['Authorization']).toBe('Bearer mockToken');
     });
   });
+
 });
