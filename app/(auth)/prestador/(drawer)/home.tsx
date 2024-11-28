@@ -31,7 +31,7 @@ const Page = () => {
         text1Style: { fontSize: 18 },
       });
       setIsOpenDeleteModal(false);
-      fetchServices();
+      fetchServices(1);
     } catch {
       Toast.show({
         type: 'error',
@@ -43,7 +43,7 @@ const Page = () => {
         text1Style: { fontSize: 18 },
       });
       setIsOpenDeleteModal(false);
-      fetchServices();
+      fetchServices(1);
     }
   };
 
@@ -53,8 +53,7 @@ const Page = () => {
       const response = await fetchReqServiceByUser(currentPage);
       setServices(response.data.data);
       setTotalPages(Math.ceil(response.data.count / 5));
-    } catch (error) {
-      console.log(error);
+    } catch {
       Toast.show({
         type: 'error',
         text1: 'Erro ao buscar serviços',

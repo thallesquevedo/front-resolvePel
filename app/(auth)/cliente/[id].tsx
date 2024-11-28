@@ -1,15 +1,41 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Linking } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
-import { Button, Image, ScrollView, Text, XStack, YStack } from 'tamagui';
+import { Button, Image, ScrollView, Text, TextArea, XStack, YStack } from 'tamagui';
+import * as yup from 'yup';
 
-import { addView, fetchClienteOrdemServico } from '~/services/user-Client';
+import StarRatingClient from '~/components/star-rating-client/star-rating-client';
+import { addComentsToReqService, addView, fetchClienteOrdemServico } from '~/services/user-Client';
+
+interface ICreateComment {
+  comentario: string;
+  rating: number;
+}
+
+const formCreateCommentSchema = yup.object().shape({
+  comentario: yup.string().required('É necessário informar um comentário'),
+  rating: yup.number().min(1).max(5).required('É necessário informar uma avaliação'),
+});
 
 const ClienteOrdemServicoPage = () => {
-  const { id } = useLocalSearchParams();
   const [ordemServico, setOrdemServico] = useState<any>({});
+  const {
+    control,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ICreateComment>({
+    defaultValues: {
+      rating: 1,
+      comentario: '',
+    },
+    resolver: yupResolver(formCreateCommentSchema),
+  });
+  const { id } = useLocalSearchParams();
   const [showPrestadorInfo, setShowPrestadorInfo] = useState(false);
   const [uriImagePath, setUriImagePath] = useState();
 
@@ -23,7 +49,30 @@ const ClienteOrdemServicoPage = () => {
 
   const onAddView = async () => {
     try {
-      await addView();
+      await addView(`${id}`);
+      setShowPrestadorInfo(true);
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'Algo deu errado!',
+        text2: 'Tente novamente mais tarde',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+    }
+  };
+
+  const onSubmit: SubmitHandler<ICreateComment> = async (data) => {
+    try {
+      await addComentsToReqService({ ...data, reqServicoId: id as string });
+      Toast.show({
+        type: 'success',
+        text1: 'Avaliação realizada com sucesso!',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
+      setValue('rating', 1);
+      setValue('comentario', '');
     } catch {
       Toast.show({
         type: 'error',
@@ -57,11 +106,6 @@ const ClienteOrdemServicoPage = () => {
       return () => fetchData();
     }, [])
   );
-
-  // useEffect(
-  //   const name = selectImage(ordemServico?.servico.name);
-  //   setUriImagePath(name);
-  // }, []);
 
   const imageMap: { [key: string]: any } = {
     'Instalação/Desinstalação': require('~/assets/servico-instalacao.png'),
@@ -109,10 +153,7 @@ const ClienteOrdemServicoPage = () => {
               </Text>
             </YStack>
             <Button
-              onPress={() => {
-                onAddView();
-                setShowPrestadorInfo(true);
-              }}
+              onPress={onAddView}
               pressStyle={{ backgroundColor: '#440F69' }}
               style={{ backgroundColor: '#54187E' }}>
               Acessar dados
@@ -196,6 +237,47 @@ const ClienteOrdemServicoPage = () => {
             </TouchableOpacity>
           </YStack>
         )}
+        <YStack>
+          <Text fontWeight="bold" fontSize={16} marginBottom={5}>
+            Já contratou este serviço? Avalie aqui
+          </Text>
+          <YStack marginBottom={10}>
+            <Controller
+              control={control}
+              name="rating"
+              render={({ field: { onChange, value } }) => (
+                <StarRatingClient rating={value} setRating={onChange} />
+              )}
+            />
+            {errors.rating && <Text color="red">{errors.rating.message}</Text>}
+          </YStack>
+
+          <YStack marginBottom={10}>
+            <Controller
+              control={control}
+              name="comentario"
+              render={({ field: { onChange, value, onBlur } }) => (
+                <TextArea
+                  value={value}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  backgroundColor="#F5F5F5"
+                  borderColor="#C5C5C5"
+                  color="black"
+                  paddingHorizontal={16}
+                  paddingVertical={0}
+                  height={88}
+                  alignContent="flex-start"
+                  placeholder="Deixe aqui seu comentário"
+                />
+              )}
+            />
+            {errors.comentario && <Text color="red">{errors.comentario.message}</Text>}
+          </YStack>
+          <Button onPress={handleSubmit(onSubmit)} style={{ backgroundColor: '#54187E' }}>
+            Avaliar
+          </Button>
+        </YStack>
       </YStack>
     </ScrollView>
   );

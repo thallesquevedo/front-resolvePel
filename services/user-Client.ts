@@ -94,9 +94,14 @@ export const fetchClienteOrdemServico = async (id: string) => {
   }
 };
 
-export const addView = async () => {
+export const addView = async (reqServicoId: string) => {
   try {
-    return await client.post('/analytics');
+    const token = await SecureStore.getItemAsync('token');
+    return await client.post(
+      '/analytics',
+      { reqServicoId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
   } catch (error) {
     throw error;
   }
@@ -126,6 +131,17 @@ export const updateUserInfos = async (data: any) => {
   try {
     const token = await SecureStore.getItemAsync('token');
     return await client.patch(`/user/me`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addComentsToReqService = async (data: any) => {
+  try {
+    const token = await SecureStore.getItemAsync('token');
+    return await client.post(`/comentarios`, data, {
       headers: { Authorization: `Bearer ${token}` },
     });
   } catch (error) {

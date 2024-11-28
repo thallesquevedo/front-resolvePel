@@ -73,8 +73,14 @@ const EditarPerfilPage = () => {
           setValue('name', name);
           setValue('email', email);
           setValue('phone', phone.slice(3));
-        } catch (error) {
-          console.log(error);
+        } catch {
+          Toast.show({
+            type: 'error',
+            text1: 'Algo deu errado!',
+            text2: 'Tente novamente mais tarde',
+            autoHide: true,
+            visibilityTime: 2000,
+          });
         } finally {
           setIsLoading(false);
         }

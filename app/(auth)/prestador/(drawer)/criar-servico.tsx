@@ -58,8 +58,14 @@ const CriarServicoPage = () => {
           const services = await fetchServices();
           setItemsLista(items.data);
           setServicosLista(services.data);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          Toast.show({
+            type: 'error',
+            text1: 'Algo deu errado!',
+            text2: 'Tente novamente mais tarde',
+            autoHide: true,
+            visibilityTime: 2000,
+          });
         } finally {
           setIsLoading(false);
         }
@@ -92,8 +98,14 @@ const CriarServicoPage = () => {
         position: 'bottom',
         text1Style: { fontSize: 18 },
       });
-    } catch (error) {
-      console.log(error);
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'Algo deu errado!',
+        text2: 'Tente novamente mais tarde',
+        autoHide: true,
+        visibilityTime: 2000,
+      });
     }
   };
 

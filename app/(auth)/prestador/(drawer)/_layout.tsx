@@ -53,6 +53,13 @@ export default function Layout() {
           drawerLabel: 'Editar perfil',
         }}
       />
+      <Drawer.Screen
+        name="[id]"
+        options={{
+          drawerLabel: 'Dados do Prestador',
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
     </Drawer>
   );
 }
