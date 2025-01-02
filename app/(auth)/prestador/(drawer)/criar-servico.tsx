@@ -204,6 +204,7 @@ const CriarServicoPage = () => {
                 <MultiSelect
                   data={itemsLista}
                   placeholder={getSelectedItemsNames() || 'Selecione um ou mais items'}
+                  visibleSelectedItem={false}
                   style={{
                     borderWidth: 1,
                     borderColor: '#C5C5C5',
@@ -224,7 +225,6 @@ const CriarServicoPage = () => {
                     setItemsSelecionados(value);
                     onChange(value);
                   }}
-                  visibleSelectedItem
                 />
               )}
             />

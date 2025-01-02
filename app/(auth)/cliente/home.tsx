@@ -126,8 +126,8 @@ const ClienteHome = () => {
             <Text color="#1E1E1E" fontSize={20} fontWeight="bold" width={160} textAlign="center">
               Não há serviços cadastrados
             </Text>
-            <Text color="#464646" fontSize={16} width={212}>
-              Clique no botão abaixo para criar seu primeiro serviço
+            <Text color="#464646" fontSize={16} width={212} textAlign="center">
+              Entre na área de prestadores e cadastre um serviço para poder visualizar aqui
             </Text>
           </YStack>
         </YStack>
